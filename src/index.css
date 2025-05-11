@@ -4,6 +4,20 @@
 @tailwind utilities;
 @custom-variant dark (&:is(.dark *));
 
+@layer components {
+    .card {
+        @apply rounded-lg border bg-secondary text-card-foreground shadow-md;
+    }
+}
+
+[data-slot="accordion-content"] > :first-child {
+    @apply grid grid-cols-[auto_1fr] gap-y-4 place-items-center;
+}
+
+[data-slot="accordion-content"] > :first-child > * {
+    @apply justify-self-start mr-4;
+}
+
 @theme inline {
     --radius-sm: calc(var(--radius) - 4px);
     --radius-md: calc(var(--radius) - 2px);
@@ -52,11 +66,11 @@
     --popover-foreground: oklch(0.13 0.028 261.692);
     --primary: oklch(0.21 0.034 264.665);
     --primary-foreground: oklch(0.985 0.002 247.839);
-    --secondary: oklch(0.967 0.003 264.542);
+    --secondary: oklch(0.985 0.001 247.839);
     --secondary-foreground: oklch(0.21 0.034 264.665);
     --muted: oklch(0.967 0.003 264.542);
     --muted-foreground: oklch(0.551 0.027 264.364);
-    --accent: oklch(0.967 0.003 264.542);
+    --accent: rgb(153, 158, 174);
     --accent-foreground: oklch(0.21 0.034 264.665);
     --destructive: oklch(0.577 0.245 27.325);
     --border: oklch(0.928 0.006 264.531);
