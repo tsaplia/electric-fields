@@ -4,6 +4,7 @@ import { Label } from "@/components/ui/label";
 import { cn } from "@/lib/utils";
 import { useConfigStore, type ConfigState } from "@/stores/config-store";
 import { useState } from "react";
+import { useDebounce } from "react-use";
 
 type CheckInputProps = {
     configName: keyof ConfigState;
@@ -37,10 +38,10 @@ export function ConfigInput({ configName, label, type }: ConfigInputProps) {
     const setConfig = useConfigStore((state) => state.setConfig);
     const [value, setValue] = useState(configValue + "");
 
-    function handleBlur() {
+    useDebounce(()=>{
         const typedValue = type === "number" ? +value : value;
         setConfig(configName, typedValue);
-    }
+    }, 200, [value])
 
     return (
         <>
@@ -51,7 +52,7 @@ export function ConfigInput({ configName, label, type }: ConfigInputProps) {
                 type={type}
                 value={value}
                 onChange={(e) => setValue(e.target.value)}
-                onBlur={handleBlur}
+
             />
         </>
     );

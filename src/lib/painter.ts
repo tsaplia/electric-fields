@@ -89,7 +89,6 @@ function drawFieldLine(
         vecEnd = new Vector(x - end.x, y - end.y);
         step++;
     }
-    console.log(step, color);
     ctx.strokeStyle = color;
     ctx.stroke();
 }
