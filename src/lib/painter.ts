@@ -1,5 +1,5 @@
 import type { ConfigState } from "@/stores/config-store";
-import { CHARGE_RADIUS, MAX_STEPS } from "./constants";
+import { CHARGE_RADIUS, CROSS_ERRROR, MAX_STEPS } from "./constants";
 import { Vector, type Point } from "./math";
 
 type Rect = {
@@ -71,6 +71,9 @@ function drawFieldLine(
     let vecStart = new Vector(x - start.x, y - start.y);
     let vecEnd = new Vector(x - end.x, y - end.y);
     let step = 0;
+
+    let prevRes: Vector | null = null;
+    let crossMult = 0;
     while (vecEnd.length > stepSize && step < MAX_STEPS) {
         const force1 = charge1 / Math.pow(vecStart.length, 3);
         const force2 = charge2 / Math.pow(vecEnd.length, 3);
@@ -82,26 +85,39 @@ function drawFieldLine(
             ctx.moveTo(x, y);
             ctx.lineTo(x + res.x, y + res.y);
         }
+        if (res.isNull()) break;
+
+        // check if new vector is "closer" to the -end vector
+        if (!isInRect({ x, y }, getRect(ctx)) && prevRes) {
+            crossMult = prevRes.cross(res) * prevRes.cross(vecEnd.scale(stepSize));
+            if (crossMult >= -CROSS_ERRROR) break; // the new vecror and the vector from end are in the same direction
+        }
 
         x += res.x;
         y += res.y;
         vecStart = new Vector(x - start.x, y - start.y);
         vecEnd = new Vector(x - end.x, y - end.y);
+
+        prevRes = res;
         step++;
     }
     ctx.strokeStyle = color;
     ctx.stroke();
+
+    if (step == MAX_STEPS) console.warn("max steps reached");
+    return step;
 }
 
 function drawField(ctx: CanvasRenderingContext2D, cfg: ConfigState, a: Point, b: Point) {
     const startVecs: Vector[] = [];
-    startVecs.push(new Vector(cfg.stepSize, 0).rotate(cfg.offset * (Math.PI / 180)));
+    startVecs.push(new Vector(0, cfg.stepSize).rotate(cfg.offset * (Math.PI / 180)));
     for (let i = 1; i < cfg.lineCount; i++) {
         startVecs.push(startVecs[i - 1].rotate((2 * Math.PI) / cfg.lineCount));
     }
 
+    let mxStepReached = 0;
     for (const vec of startVecs) {
-        drawFieldLine(
+        let steps = drawFieldLine(
             ctx,
             { x: vec.x, y: vec.y },
             a,
@@ -111,8 +127,9 @@ function drawField(ctx: CanvasRenderingContext2D, cfg: ConfigState, a: Point, b:
             cfg.charge2 * Math.sign(cfg.charge1),
             cfg.lineColor1
         );
+        if (steps != MAX_STEPS) mxStepReached = Math.max(mxStepReached, steps);
         if (cfg.charge1 * cfg.charge2 < 0 && !cfg.bothSides) continue;
-        drawFieldLine(
+        steps = drawFieldLine(
             ctx,
             { x: -vec.x, y: vec.y },
             b,
@@ -122,7 +139,9 @@ function drawField(ctx: CanvasRenderingContext2D, cfg: ConfigState, a: Point, b:
             cfg.charge1 * Math.sign(cfg.charge2),
             cfg.lineColor2
         );
+        if (steps != MAX_STEPS) mxStepReached = Math.max(mxStepReached, steps);
     }
+    console.log(mxStepReached);
 }
 
 export function draw(ctx: CanvasRenderingContext2D, cfg: ConfigState) {

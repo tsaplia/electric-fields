@@ -26,6 +26,14 @@ class Vector implements Point {
         return new Vector(this.x + vector.x, this.y + vector.y);
     }
 
+    cross(vector: Vector) {
+        return this.x * vector.y - this.y * vector.x;
+    }
+
+    isNull() {
+        return this.x === 0 && this.y === 0;
+    }
+
     get length() {
         return Math.sqrt(this.x * this.x + this.y * this.y);
     }

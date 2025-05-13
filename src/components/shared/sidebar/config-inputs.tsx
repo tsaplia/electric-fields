@@ -38,10 +38,14 @@ export function ConfigInput({ configName, label, type }: ConfigInputProps) {
     const setConfig = useConfigStore((state) => state.setConfig);
     const [value, setValue] = useState(configValue + "");
 
-    useDebounce(()=>{
-        const typedValue = type === "number" ? +value : value;
-        setConfig(configName, typedValue);
-    }, 200, [value])
+    useDebounce(
+        () => {
+            const typedValue = type === "number" ? +value : value;
+            setConfig(configName, typedValue);
+        },
+        200,
+        [value]
+    );
 
     return (
         <>
@@ -52,7 +56,7 @@ export function ConfigInput({ configName, label, type }: ConfigInputProps) {
                 type={type}
                 value={value}
                 onChange={(e) => setValue(e.target.value)}
-
+                onKeyDown={(e) => e.key === "Enter" && (e.target as HTMLInputElement).blur()}
             />
         </>
     );
