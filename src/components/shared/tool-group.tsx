@@ -4,11 +4,7 @@ import { LucideCircleMinus, LucideCirclePlus, LucideMousePointer2 } from "lucide
 
 function ToolGroup({ className }: { className?: string }) {
     return (
-        <ToggleGroup
-            type="single"
-            className={cn("card p-2 gap-2", className)}
-            defaultValue="pointer"
-        >
+        <ToggleGroup type="single" className={cn("card p-2 gap-2", className)} defaultValue="pointer">
             <ToggleGroupItem className="w-9" value="pointer">
                 <LucideMousePointer2 />
             </ToggleGroupItem>
@@ -19,17 +15,6 @@ function ToolGroup({ className }: { className?: string }) {
                 <LucideCircleMinus />
             </ToggleGroupItem>
         </ToggleGroup>
-        // <div className={cn("card p-2 flex gap-3", className)}>
-        //     <Button className="w-9" variant={"ghost"}>
-        //         <LucideMousePointer2 className=""/>
-        //     </Button>
-        //     <Button className="w-9 text-lg" variant={"ghost"}>
-        //         p+
-        //     </Button>
-        //     <Button className="w-9 text-lg" variant={"ghost"}>
-        //         e-
-        //     </Button>
-        // </div>
     );
 }
 
