@@ -1,4 +1,6 @@
+import { MAX_STEPS } from "@/lib/constants";
 import { create } from "zustand";
+import { persist } from "zustand/middleware";
 
 export interface ConfigState {
     charge1: number;
@@ -13,6 +15,7 @@ export interface ConfigState {
     chargeColor1: string;
     chargeColor2: string;
     stepSize: number;
+    maxSteps: number;
     bothSides: boolean;
 }
 
@@ -20,19 +23,27 @@ interface ConfigActions {
     setConfig: <T extends keyof ConfigState>(config: T, value: ConfigState[T]) => void;
 }
 
-export const useConfigStore = create<ConfigState & ConfigActions>()((set) => ({
-    charge1: 10,
-    charge2: 10,
-    lineCount: 20,
-    offset: 4,
-    showForce: true,
-    showCharge: true,
-    showLines: true,
-    lineColor1: "#888877",
-    lineColor2: "#778888",
-    chargeColor1: "#0000FF",
-    chargeColor2: "#FF0000",
-    stepSize: 5,
-    bothSides: false,
-    setConfig: (config, value) => set(() => ({ [config]: value })),
-}));
+export const useConfigStore = create<ConfigState & ConfigActions>()(
+    persist(
+        (set) => ({
+            charge1: 10,
+            charge2: 10,
+            lineCount: 20,
+            offset: 4,
+            showForce: true,
+            showCharge: true,
+            showLines: true,
+            lineColor1: "#888877",
+            lineColor2: "#778888",
+            chargeColor1: "#0000FF",
+            chargeColor2: "#FF0000",
+            stepSize: 5,
+            bothSides: false,
+            maxSteps: MAX_STEPS,
+            setConfig: (config, value) => set(() => ({ [config]: value })),
+        }),
+        {
+            name: "config-store",
+        }
+    )
+);

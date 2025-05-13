@@ -141,7 +141,7 @@ function drawField(ctx: CanvasRenderingContext2D, cfg: ConfigState, a: Point, b:
         );
         if (steps != MAX_STEPS) mxStepReached = Math.max(mxStepReached, steps);
     }
-    console.log(mxStepReached);
+    console.log("max steps: ", mxStepReached);
 }
 
 export function draw(ctx: CanvasRenderingContext2D, cfg: ConfigState) {

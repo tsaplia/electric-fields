@@ -60,12 +60,13 @@ function SidebarContent({ className, opened, onClose }: Props) {
                 <AccordionItem value="techinical">
                     <AccordionTrigger>Techinical</AccordionTrigger>
                     <AccordionContent>
-                        <ConfigInput type="number" configName="stepSize" label="Step size" />
                         <CheckConfigInput
                             className="col-span-2"
                             configName="bothSides"
                             label="Paint from both sides"
                         />
+                        <ConfigInput type="number" configName="stepSize" label="Step size" />
+                        <ConfigInput type="number" configName="maxSteps" label="Max steps" />
                     </AccordionContent>
                 </AccordionItem>
             </Accordion>
