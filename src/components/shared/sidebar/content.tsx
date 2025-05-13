@@ -44,15 +44,15 @@ function SidebarContent({ className, opened, onClose }: Props) {
                 <AccordionItem value="appearance">
                     <AccordionTrigger>Appearance</AccordionTrigger>
                     <AccordionContent>
-                        <CheckConfigInput configName="showLines" label="Field lines" />
-                        <div className="flex gap-2">
-                            <ConfigInput type="color" configName="lineColor1"></ConfigInput>
-                            <ConfigInput type="color" configName="lineColor2"></ConfigInput>
-                        </div>
                         <CheckConfigInput configName="showCharge" label="Charges" />
                         <div className="flex gap-2">
                             <ConfigInput type="color" configName="chargeColor1"></ConfigInput>
                             <ConfigInput type="color" configName="chargeColor2"></ConfigInput>
+                        </div>
+                        <CheckConfigInput configName="showLines" label="Field lines" />
+                        <div className="flex gap-2">
+                            <ConfigInput type="color" configName="lineColor1"></ConfigInput>
+                            <ConfigInput type="color" configName="lineColor2"></ConfigInput>
                         </div>
                         <CheckConfigInput className="col-span-2" configName="showForce" label="Forces" />
                     </AccordionContent>
