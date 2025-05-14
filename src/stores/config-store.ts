@@ -1,8 +1,12 @@
-import { MAX_STEPS } from "@/lib/constants";
+import { CONFIGS } from "@/lib/constants";
 import { create } from "zustand";
 import { persist } from "zustand/middleware";
 
-export interface ConfigState {
+interface ConfigActions {
+    setConfig: <T extends keyof ConfigState>(config: T, value: ConfigState[T]) => void;
+}
+
+export type ConfigState = {
     charge1: number;
     charge2: number;
     lineCount: number;
@@ -17,30 +21,22 @@ export interface ConfigState {
     stepSize: number;
     maxSteps: number;
     bothSides: boolean;
-}
+};
 
-interface ConfigActions {
-    setConfig: <T extends keyof ConfigState>(config: T, value: ConfigState[T]) => void;
+const defaultState = {} as {[key: string]: ConfigState[keyof ConfigState]};
+for (const key in CONFIGS) {
+    defaultState[key] = CONFIGS[key as keyof ConfigState].default;
 }
 
 export const useConfigStore = create<ConfigState & ConfigActions>()(
     persist(
-        (set) => ({
-            charge1: 10,
-            charge2: 10,
-            lineCount: 20,
-            offset: 4,
-            showForce: true,
-            showCharge: true,
-            showLines: true,
-            lineColor1: "#888877",
-            lineColor2: "#778888",
-            chargeColor1: "#0000FF",
-            chargeColor2: "#FF0000",
-            stepSize: 5,
-            bothSides: false,
-            maxSteps: MAX_STEPS,
-            setConfig: (config, value) => set(() => ({ [config]: value })),
+        (set, get) => ({
+            ...defaultState as ConfigState,
+
+            setConfig: (config, value) => {
+                const cur = get()[config];
+                if (cur !== value) set(() => ({ [config]: value }));
+            },
         }),
         {
             name: "config-store",
