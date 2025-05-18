@@ -127,20 +127,17 @@ function drawField(ctx: CanvasRenderingContext2D, cfg: ConfigState, a: Point, b:
     console.log(`maxStepCnt: ${maxStepCnt}, maximalStep: ${maximalStep}`);
 }
 
-export function draw(ctx: CanvasRenderingContext2D, cfg: ConfigState) {
+export function draw(ctx: CanvasRenderingContext2D, cfg: ConfigState, a: Point, b: Point) {
     ctx.clearRect(0, 0, ctx.canvas.width, ctx.canvas.height);
-    const centerY = ctx.canvas.height / 2;
-    const centerX1 = (ctx.canvas.width * 2) / 5;
-    const centerX2 = (ctx.canvas.width * 3) / 5;
 
     if (cfg.showLines) {
         ctx.lineWidth = 1;
-        drawField(ctx, cfg, { x: centerX1, y: centerY }, { x: centerX2, y: centerY });
+        drawField(ctx, cfg, a, b);
     }
 
     if (cfg.showCharge) {
         ctx.lineWidth = 2;
-        drawCharge(ctx, centerX1, centerY, CHARGE_RADIUS, cfg.chargeColor1, cfg.charge1);
-        drawCharge(ctx, centerX2, centerY, CHARGE_RADIUS, cfg.chargeColor2, cfg.charge2);
+        drawCharge(ctx, a.x, a.y, CHARGE_RADIUS, cfg.chargeColor1, cfg.charge1);
+        drawCharge(ctx, b.x, b.y, CHARGE_RADIUS, cfg.chargeColor2, cfg.charge2);
     }
 }
