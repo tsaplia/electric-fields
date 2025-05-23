@@ -24,8 +24,8 @@ function getRect(cfg: DrawConfig, a: Point, b: Point): Rect {
         y1: Math.min(a.y, b.y, 0),
         x2: Math.max(a.x, b.x, width),
         y2: Math.max(a.y, b.y, height),
-    }
-};
+    };
+}
 
 function drawCharge(ctx: CanvasRenderingContext2D, x: number, y: number, radius: number, color: string, sign: number) {
     ctx.fillStyle = color;
@@ -51,17 +51,24 @@ function drawCharge(ctx: CanvasRenderingContext2D, x: number, y: number, radius:
     }
 }
 
-function drawFieldLine(angle: Point, start: Point, end: Point, charge1: number, charge2: number, color: string, cfg: DrawConfig) {
+function getStepSize(normForce: number, dist: number) {
+    return ((1 / Math.pow(normForce, 1)) * dist) / 20;
+}
+
+function drawFieldLine(
+    angle: Point,
+    start: Point,
+    end: Point,
+    charge1: number,
+    charge2: number,
+    color: string,
+    cfg: DrawConfig
+) {
     const { ctx } = cfg;
+    const dist = new Vector(end.x - start.x, end.y - start.y).length;
+
     if (charge1 == 0) return 0;
-
-    if (charge1 < 0) {
-        charge1 *= -1;
-        charge2 *= -1;
-    }
-
-    ctx.beginPath();
-    ctx.moveTo(start.x, start.y);
+    [charge1, charge2] = charge1 > 0 ? [charge1, charge2] : [-charge1, -charge2];
 
     let x = angle.x + start.x;
     let y = angle.y + start.y;
@@ -71,11 +78,18 @@ function drawFieldLine(angle: Point, start: Point, end: Point, charge1: number, 
 
     let prevRes: Vector | null = null;
     let crossMult = 0;
-    while (vecEnd.length > cfg.stepSize && step < cfg.maxSteps) {
-        const force1 = charge1 / Math.pow(vecStart.length, 3);
-        const force2 = charge2 / Math.pow(vecEnd.length, 3);
 
-        const res = vecStart.scale(force1).add(vecEnd.scale(force2)).scale(cfg.stepSize);
+    ctx.beginPath();
+    ctx.moveTo(start.x, start.y);
+    while (vecEnd.length > cfg.stepSize && step < cfg.maxSteps) {
+        const force1 = charge1 / Math.pow(vecStart.length, 2);
+        const force2 = charge2 / Math.pow(vecEnd.length, 2);
+        const vecRes = vecStart.scale(force1).add(vecEnd.scale(force2));
+
+        const normForce = vecRes.mult(1 / Math.sqrt(Math.abs(force1 * force2)));
+        const stepSize = Math.max(cfg.stepSize, getStepSize(normForce.length, dist));
+
+        const res = vecRes.scale(stepSize);
         if (isInRect({ x, y }, getRect(cfg, start, end))) {
             ctx.lineTo(x + res.x, y + res.y);
         } else if (isInRect({ x: x + res.x, y: y + res.y }, getRect(cfg, start, end))) {
@@ -86,7 +100,7 @@ function drawFieldLine(angle: Point, start: Point, end: Point, charge1: number, 
 
         // check if new vector is "closer" to the -end vector
         if (!isInRect({ x, y }, getRect(cfg, start, end)) && prevRes) {
-            crossMult = prevRes.cross(res) * prevRes.cross(vecEnd.scale(cfg.stepSize));
+            crossMult = prevRes.cross(res) * prevRes.cross(vecEnd.scale(stepSize));
             if (crossMult >= -CROSS_ERRROR) break; // the new vector and the vector from end are in the same direction
         }
 
@@ -121,7 +135,8 @@ function drawField(cfg: DrawConfig, a: Point, b: Point) {
     }
     const maxStepCnt = results.reduce((prev, curr) => (curr === cfg.maxSteps ? prev + 1 : prev), 0);
     const maximalStep = results.reduce((prev, curr) => (curr === cfg.maxSteps ? prev : Math.max(prev, curr)), 0);
-    console.log(`maxStepCnt: ${maxStepCnt}, maximalStep: ${maximalStep}`);
+    const sum = results.reduce((prev, curr) => prev + curr, 0);
+    console.log(`maxStepCnt: ${maxStepCnt}, maximalStep: ${maximalStep}, sum: ${sum}`);
 }
 
 export function draw(cfg: DrawConfig, a: Point, b: Point) {

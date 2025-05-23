@@ -26,6 +26,10 @@ class Vector implements Point {
         return new Vector(this.x + vector.x, this.y + vector.y);
     }
 
+    mult(scalar: number) {
+        return new Vector(this.x * scalar, this.y * scalar);
+    }
+
     cross(vector: Vector) {
         return this.x * vector.y - this.y * vector.x;
     }

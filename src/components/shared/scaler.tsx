@@ -18,10 +18,10 @@ function Scaler({ className }: { className?: string }) {
     };
     return (
         <div className={cn("flex flex-col gap-2", className)}>
-            <Button variant={"outline"} size={"icon"} onClick={() => zoom(SCALING_FACTOR)}>
+            <Button variant={"outline"} size={"icon"} onClick={() => zoom(1 / SCALING_FACTOR)}>
                 <LucidePlus />
             </Button>
-            <Button variant={"outline"} size={"icon"} onClick={() => zoom(1 / SCALING_FACTOR)}>
+            <Button variant={"outline"} size={"icon"} onClick={() => zoom(SCALING_FACTOR)}>
                 <LucideMinus />
             </Button>
         </div>
