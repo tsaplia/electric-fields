@@ -33,7 +33,7 @@ function Canvas({ className }: { className?: string }) {
         if (ctx) {
             const a = { x: xScale.toPixel(FIRST_CORDS.x), y: yScale.toPixel(FIRST_CORDS.y) };
             const b = { x: xScale.toPixel(SECOND_CORDS.x), y: yScale.toPixel(SECOND_CORDS.y) };
-            draw(ctx, config, a, b);
+            draw({...config, ctx}, a, b);
         }
     }, [config, xScale, yScale]);
     return <canvas ref={canvasRef} data-slot="canvas" className={className || ""} />;

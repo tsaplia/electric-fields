@@ -3,24 +3,29 @@ import { CHARGE_RADIUS, CROSS_ERRROR } from "./constants";
 import { Vector, type Point } from "./math";
 
 type Rect = {
-    x: number;
-    y: number;
-    width: number;
-    height: number;
+    x1: number;
+    y1: number;
+    x2: number;
+    y2: number;
 };
 
-function isInRect(point: Point, rect: Rect) {
-    return point.x >= rect.x && point.x <= rect.width && point.y >= rect.y && point.y <= rect.height;
+interface DrawConfig extends ConfigState {
+    ctx: CanvasRenderingContext2D;
 }
 
-function getRect(ctx: CanvasRenderingContext2D) {
-    return {
-        x: 0,
-        y: 0,
-        width: ctx.canvas.width,
-        height: ctx.canvas.height,
-    };
+function isInRect(point: Point, rect: Rect) {
+    return point.x >= rect.x1 && point.x <= rect.x2 && point.y >= rect.y1 && point.y <= rect.y2;
 }
+
+function getRect(cfg: DrawConfig, a: Point, b: Point): Rect {
+    const { width, height } = cfg.ctx.canvas;
+    return {
+        x1: Math.min(a.x, b.x, 0),
+        y1: Math.min(a.y, b.y, 0),
+        x2: Math.max(a.x, b.x, width),
+        y2: Math.max(a.y, b.y, height),
+    }
+};
 
 function drawCharge(ctx: CanvasRenderingContext2D, x: number, y: number, radius: number, color: string, sign: number) {
     ctx.fillStyle = color;
@@ -46,17 +51,9 @@ function drawCharge(ctx: CanvasRenderingContext2D, x: number, y: number, radius:
     }
 }
 
-function drawFieldLine(
-    ctx: CanvasRenderingContext2D,
-    angle: Point,
-    start: Point,
-    end: Point,
-    charge1: number,
-    charge2: number,
-    color: string,
-    cfg: ConfigState
-) {
-    if(charge1 == 0) return 0;
+function drawFieldLine(angle: Point, start: Point, end: Point, charge1: number, charge2: number, color: string, cfg: DrawConfig) {
+    const { ctx } = cfg;
+    if (charge1 == 0) return 0;
 
     if (charge1 < 0) {
         charge1 *= -1;
@@ -79,18 +76,18 @@ function drawFieldLine(
         const force2 = charge2 / Math.pow(vecEnd.length, 3);
 
         const res = vecStart.scale(force1).add(vecEnd.scale(force2)).scale(cfg.stepSize);
-        if (isInRect({ x, y }, getRect(ctx))) {
+        if (isInRect({ x, y }, getRect(cfg, start, end))) {
             ctx.lineTo(x + res.x, y + res.y);
-        } else if (isInRect({ x: x + res.x, y: y + res.y }, getRect(ctx))) {
+        } else if (isInRect({ x: x + res.x, y: y + res.y }, getRect(cfg, start, end))) {
             ctx.moveTo(x, y);
             ctx.lineTo(x + res.x, y + res.y);
         }
         if (res.isNull()) break;
 
         // check if new vector is "closer" to the -end vector
-        if (!isInRect({ x, y }, getRect(ctx)) && prevRes) {
+        if (!isInRect({ x, y }, getRect(cfg, start, end)) && prevRes) {
             crossMult = prevRes.cross(res) * prevRes.cross(vecEnd.scale(cfg.stepSize));
-            if (crossMult >= -CROSS_ERRROR) break; // the new vecror and the vector from end are in the same direction
+            if (crossMult >= -CROSS_ERRROR) break; // the new vector and the vector from end are in the same direction
         }
 
         x += res.x;
@@ -106,7 +103,7 @@ function drawFieldLine(
     return step;
 }
 
-function drawField(ctx: CanvasRenderingContext2D, cfg: ConfigState, a: Point, b: Point) {
+function drawField(cfg: DrawConfig, a: Point, b: Point) {
     const startVecs: Vector[] = [];
     startVecs.push(new Vector(0, cfg.stepSize).rotate(cfg.offset * (Math.PI / 180)));
     for (let i = 1; i < cfg.lineCount; i++) {
@@ -115,11 +112,11 @@ function drawField(ctx: CanvasRenderingContext2D, cfg: ConfigState, a: Point, b:
 
     const results: number[] = [];
     for (const vec of startVecs) {
-        let steps = drawFieldLine(ctx, vec, a, b, cfg.charge1, cfg.charge2, cfg.lineColor1, cfg);
+        let steps = drawFieldLine(vec, a, b, cfg.charge1, cfg.charge2, cfg.lineColor1, cfg);
         results.push(steps);
 
         if (cfg.charge1 * cfg.charge2 < 0 && !cfg.bothSides) continue;
-        steps = drawFieldLine(ctx, { x: -vec.x, y: -vec.y }, b, a, cfg.charge2, cfg.charge1, cfg.lineColor2, cfg);
+        steps = drawFieldLine({ x: -vec.x, y: vec.y }, b, a, cfg.charge2, cfg.charge1, cfg.lineColor2, cfg);
         results.push(steps);
     }
     const maxStepCnt = results.reduce((prev, curr) => (curr === cfg.maxSteps ? prev + 1 : prev), 0);
@@ -127,12 +124,13 @@ function drawField(ctx: CanvasRenderingContext2D, cfg: ConfigState, a: Point, b:
     console.log(`maxStepCnt: ${maxStepCnt}, maximalStep: ${maximalStep}`);
 }
 
-export function draw(ctx: CanvasRenderingContext2D, cfg: ConfigState, a: Point, b: Point) {
+export function draw(cfg: DrawConfig, a: Point, b: Point) {
+    const { ctx } = cfg;
     ctx.clearRect(0, 0, ctx.canvas.width, ctx.canvas.height);
 
     if (cfg.showLines) {
         ctx.lineWidth = 1;
-        drawField(ctx, cfg, a, b);
+        drawField(cfg, a, b);
     }
 
     if (cfg.showCharge) {
