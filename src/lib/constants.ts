@@ -1,7 +1,7 @@
 import type { ConfigState } from "@/stores/config-store";
 
 export const CHARGE_RADIUS = 10;
-export const CROSS_ERRROR = 1e-9;
+export const CROSS_ERRROR = 1e-8;
 
 type ConfigType = { [K in keyof ConfigState]: { default: ConfigState[K]; min?: number; max?: number } };
 

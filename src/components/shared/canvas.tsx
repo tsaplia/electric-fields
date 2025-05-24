@@ -8,7 +8,7 @@ import { useWindowSize } from "react-use";
 
 function Canvas({ className }: { className?: string }) {
     const canvasRef = useRef<HTMLCanvasElement>(null);
-    
+
     const config = useConfigStore();
     const xScale = useScaleStore((state) => state.x);
     const yScale = useScaleStore((state) => state.y);
@@ -18,7 +18,7 @@ function Canvas({ className }: { className?: string }) {
 
     useScaleController(canvasRef);
 
-        useEffect(() => {
+    useEffect(() => {
         if (!canvasRef.current) return;
         const canvas = canvasRef.current;
 
@@ -33,7 +33,7 @@ function Canvas({ className }: { className?: string }) {
         if (ctx) {
             const a = { x: xScale.toPixel(FIRST_CORDS.x), y: yScale.toPixel(FIRST_CORDS.y) };
             const b = { x: xScale.toPixel(SECOND_CORDS.x), y: yScale.toPixel(SECOND_CORDS.y) };
-            draw({...config, ctx}, a, b);
+            draw({ ...config, ctx, a, b });
         }
     }, [config, xScale, yScale]);
     return <canvas ref={canvasRef} data-slot="canvas" className={className || ""} />;

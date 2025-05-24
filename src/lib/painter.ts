@@ -11,13 +11,16 @@ type Rect = {
 
 interface DrawConfig extends ConfigState {
     ctx: CanvasRenderingContext2D;
+    a: Point;
+    b: Point;
 }
 
 function isInRect(point: Point, rect: Rect) {
     return point.x >= rect.x1 && point.x <= rect.x2 && point.y >= rect.y1 && point.y <= rect.y2;
 }
 
-function getRect(cfg: DrawConfig, a: Point, b: Point): Rect {
+function getPaintRect(cfg: DrawConfig): Rect {
+    const { a, b } = cfg;
     const { width, height } = cfg.ctx.canvas;
     return {
         x1: Math.min(a.x, b.x, 0),
@@ -55,20 +58,39 @@ function getStepSize(normForce: number, dist: number) {
     return ((1 / Math.pow(normForce, 1)) * dist) / 20;
 }
 
+function calcForce(vecStart: Vector, vecEnd: Vector, chargeStart: number, chargeEnd: number) {
+    const forceStart = chargeStart / Math.pow(vecStart.length, 2);
+    const forceEnd = chargeEnd / Math.pow(vecEnd.length, 2);
+    const resForceVec = vecStart.scale(forceStart).add(vecEnd.scale(forceEnd));
+    return { resForceVec, forceStart, forceEnd };
+}
+
+function getRK4Step({ x, y }: Point, h: number, func: (x: number, y: number) => Vector) {
+    /* func should return normalised vector */
+    const k1 = func(x, y);
+    const k2 = func(x + (h / 2) * k1.x, y + (h / 2) * k1.y);
+    const k3 = func(x + (h / 2) * k2.x, y + (h / 2) * k2.y);
+    const k4 = func(x + h * k3.x, y + h * k3.y);
+    return new Vector(
+        h / 6 * (k1.x + 2 * k2.x + 2 * k3.x + k4.x),
+        h / 6 * (k1.y + 2 * k2.y + 2 * k3.y + k4.y)
+    );
+}
+
 function drawFieldLine(
     angle: Point,
     start: Point,
     end: Point,
-    charge1: number,
-    charge2: number,
+    chargeStart: number,
+    chargeEnd: number,
     color: string,
     cfg: DrawConfig
 ) {
     const { ctx } = cfg;
     const dist = new Vector(end.x - start.x, end.y - start.y).length;
 
-    if (charge1 == 0) return 0;
-    [charge1, charge2] = charge1 > 0 ? [charge1, charge2] : [-charge1, -charge2];
+    if (chargeStart == 0) return 0;
+    [chargeStart, chargeEnd] = chargeStart > 0 ? [chargeStart, chargeEnd] : [-chargeStart, -chargeEnd];
 
     let x = angle.x + start.x;
     let y = angle.y + start.y;
@@ -82,34 +104,36 @@ function drawFieldLine(
     ctx.beginPath();
     ctx.moveTo(start.x, start.y);
     while (vecEnd.length > cfg.stepSize && step < cfg.maxSteps) {
-        const force1 = charge1 / Math.pow(vecStart.length, 2);
-        const force2 = charge2 / Math.pow(vecEnd.length, 2);
-        const vecRes = vecStart.scale(force1).add(vecEnd.scale(force2));
-
-        const normForce = vecRes.mult(1 / Math.sqrt(Math.abs(force1 * force2)));
+        const { resForceVec, forceStart, forceEnd } = calcForce(vecStart, vecEnd, chargeStart, chargeEnd);
+        const normForce = resForceVec.mult(1 / Math.sqrt(Math.abs(forceStart * forceEnd)));
         const stepSize = Math.max(cfg.stepSize, getStepSize(normForce.length, dist));
 
-        const res = vecRes.scale(stepSize);
-        if (isInRect({ x, y }, getRect(cfg, start, end))) {
-            ctx.lineTo(x + res.x, y + res.y);
-        } else if (isInRect({ x: x + res.x, y: y + res.y }, getRect(cfg, start, end))) {
+        const change = getRK4Step({ x, y }, stepSize, (_x, _y) => {
+            const _vecStart = new Vector(_x - start.x, _y - start.y);
+            const _vecEnd = new Vector(_x - end.x, _y - end.y);
+            return calcForce(_vecStart, _vecEnd, chargeStart, chargeEnd).resForceVec.scale(1);
+        });
+
+        if (isInRect({ x, y }, getPaintRect(cfg))) {
+            ctx.lineTo(x + change.x, y + change.y);
+        } else if (isInRect({ x: x + change.x, y: y + change.y }, getPaintRect(cfg))) {
             ctx.moveTo(x, y);
-            ctx.lineTo(x + res.x, y + res.y);
+            ctx.lineTo(x + change.x, y + change.y);
         }
-        if (res.isNull()) break;
+        if (change.isNull()) break;
 
         // check if new vector is "closer" to the -end vector
-        if (!isInRect({ x, y }, getRect(cfg, start, end)) && prevRes) {
-            crossMult = prevRes.cross(res) * prevRes.cross(vecEnd.scale(stepSize));
+        if (!isInRect({ x, y }, getPaintRect(cfg)) && prevRes) {
+            crossMult = prevRes.cross(change) * prevRes.cross(vecEnd.scale(stepSize));
             if (crossMult >= -CROSS_ERRROR) break; // the new vector and the vector from end are in the same direction
         }
 
-        x += res.x;
-        y += res.y;
+        x += change.x;
+        y += change.y;
         vecStart = new Vector(x - start.x, y - start.y);
         vecEnd = new Vector(x - end.x, y - end.y);
 
-        prevRes = res;
+        prevRes = change;
         step++;
     }
     ctx.strokeStyle = color;
@@ -117,7 +141,7 @@ function drawFieldLine(
     return step;
 }
 
-function drawField(cfg: DrawConfig, a: Point, b: Point) {
+function drawField(cfg: DrawConfig) {
     const startVecs: Vector[] = [];
     startVecs.push(new Vector(0, cfg.stepSize).rotate(cfg.offset * (Math.PI / 180)));
     for (let i = 1; i < cfg.lineCount; i++) {
@@ -126,11 +150,11 @@ function drawField(cfg: DrawConfig, a: Point, b: Point) {
 
     const results: number[] = [];
     for (const vec of startVecs) {
-        let steps = drawFieldLine(vec, a, b, cfg.charge1, cfg.charge2, cfg.lineColor1, cfg);
+        let steps = drawFieldLine(vec, cfg.a, cfg.b, cfg.charge1, cfg.charge2, cfg.lineColor1, cfg);
         results.push(steps);
 
         if (cfg.charge1 * cfg.charge2 < 0 && !cfg.bothSides) continue;
-        steps = drawFieldLine({ x: -vec.x, y: vec.y }, b, a, cfg.charge2, cfg.charge1, cfg.lineColor2, cfg);
+        steps = drawFieldLine({ x: -vec.x, y: vec.y }, cfg.b, cfg.a, cfg.charge2, cfg.charge1, cfg.lineColor2, cfg);
         results.push(steps);
     }
     const maxStepCnt = results.reduce((prev, curr) => (curr === cfg.maxSteps ? prev + 1 : prev), 0);
@@ -139,13 +163,13 @@ function drawField(cfg: DrawConfig, a: Point, b: Point) {
     console.log(`maxStepCnt: ${maxStepCnt}, maximalStep: ${maximalStep}, sum: ${sum}`);
 }
 
-export function draw(cfg: DrawConfig, a: Point, b: Point) {
-    const { ctx } = cfg;
+export function draw(cfg: DrawConfig) {
+    const { ctx, a, b } = cfg;
     ctx.clearRect(0, 0, ctx.canvas.width, ctx.canvas.height);
 
     if (cfg.showLines) {
         ctx.lineWidth = 1;
-        drawField(cfg, a, b);
+        drawField(cfg);
     }
 
     if (cfg.showCharge) {
