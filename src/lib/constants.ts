@@ -17,7 +17,7 @@ export const CONFIGS: ConfigType = {
     lineColor2: { default: "#778888" },
     chargeColor1: { default: "#0000FF" },
     chargeColor2: { default: "#FF0000" },
-    stepSize: { default: 5, min: 1, max: 100 },
+    stepSize: { default: 7, min: 1, max: 50 },
     bothSides: { default: false },
     maxSteps: { default: 500000, min: 1, max: 500000 },
 } as const;
@@ -26,3 +26,5 @@ export const SCALE_RANGE = { a: 0, b: 10 };
 export const FIRST_CORDS = { x: 3, y: 5 } as const;
 export const SECOND_CORDS = { x: 7, y: 5 } as const;
 export const SCALING_FACTOR = 1.25;
+export const MAX_SCALE = 3;
+export const MIN_SCALE = 0.05;

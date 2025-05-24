@@ -55,7 +55,7 @@ function drawCharge(ctx: CanvasRenderingContext2D, x: number, y: number, radius:
 }
 
 function getStepSize(normForce: number, dist: number) {
-    return ((1 / Math.pow(normForce, 1)) * dist) / 20;
+    return (1 / normForce) * dist / 20;
 }
 
 function calcForce(vecStart: Vector, vecEnd: Vector, chargeStart: number, chargeEnd: number) {
@@ -103,10 +103,14 @@ function drawFieldLine(
 
     ctx.beginPath();
     ctx.moveTo(start.x, start.y);
-    while (vecEnd.length > cfg.stepSize && step < cfg.maxSteps) {
+    while (vecEnd.length > CHARGE_RADIUS && step < cfg.maxSteps) {
         const { resForceVec, forceStart, forceEnd } = calcForce(vecStart, vecEnd, chargeStart, chargeEnd);
         const normForce = resForceVec.mult(1 / Math.sqrt(Math.abs(forceStart * forceEnd)));
-        const stepSize = Math.max(cfg.stepSize, getStepSize(normForce.length, dist));
+
+        let stepSize = Math.max(cfg.stepSize, getStepSize(normForce.length, dist));
+        if(isInRect({ x, y }, {x1: 0, y1: 0, x2: ctx.canvas.width, y2: ctx.canvas.height})) {
+            stepSize = cfg.stepSize;
+        }
 
         const change = getRK4Step({ x, y }, stepSize, (_x, _y) => {
             const _vecStart = new Vector(_x - start.x, _y - start.y);

@@ -1,3 +1,5 @@
+import { MAX_SCALE, MIN_SCALE, SCALE_RANGE } from "./constants";
+
 type Range = { a: number; b: number };
 
 export class Scale {
@@ -30,6 +32,9 @@ export class Scale {
             a: scalePoint(this.valRange.a, centerVal),
             b: scalePoint(this.valRange.b, centerVal),
         };
+
+        const scaleFactor = (SCALE_RANGE.b - SCALE_RANGE.a) / (valRange.b - valRange.a);
+        if (scaleFactor < MIN_SCALE || scaleFactor > MAX_SCALE) return this;
         return new Scale(this.pxRange, valRange);
     }
 
