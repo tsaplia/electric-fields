@@ -1,6 +1,7 @@
 import type { ConfigState } from "@/stores/config-store";
 import { CHARGE_RADIUS, CROSS_ERRROR } from "./constants";
 import { Vector, type Point } from "./math";
+import type { Charge } from "./types";
 
 type Rect = {
     x1: number;
@@ -13,6 +14,7 @@ interface DrawConfig extends ConfigState {
     ctx: CanvasRenderingContext2D;
     a: Point;
     b: Point;
+    charges: Charge[]
 }
 
 function isInRect(point: Point, rect: Rect) {
@@ -180,5 +182,9 @@ export function draw(cfg: DrawConfig) {
         ctx.lineWidth = 2;
         drawCharge(ctx, a.x, a.y, CHARGE_RADIUS, cfg.chargeColor1, cfg.charge1);
         drawCharge(ctx, b.x, b.y, CHARGE_RADIUS, cfg.chargeColor2, cfg.charge2);
+
+        for (const charge of cfg.charges) {
+            drawCharge(ctx, charge.x, charge.y, CHARGE_RADIUS, cfg.chargeColor1, charge.sign);
+        }
     }
 }
