@@ -5,7 +5,7 @@ import { useScaleStore } from "@/stores/scale-store";
 import { Scale } from "@/lib/scale";
 import type { Point } from "@/lib/math";
 
-export function useScaleController(canvasRef: React.RefObject<HTMLCanvasElement | null>) {
+export function useScaleController(canvasRef: React.RefObject<HTMLDivElement | null>) {
     const setXScale = useScaleStore((state) => state.setX);
     const setYScale = useScaleStore((state) => state.setY);
     const disabled = useScaleStore((state) => state.disabled);
@@ -20,6 +20,7 @@ export function useScaleController(canvasRef: React.RefObject<HTMLCanvasElement 
     }, [height, width, setXScale, setYScale]);
 
     useEffect(() => {
+        console.debug("rerender")
         if (!canvasRef.current) return;
 
         const canvas = canvasRef.current;

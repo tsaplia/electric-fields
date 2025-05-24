@@ -1,5 +1,5 @@
 import type { ConfigState } from "@/stores/config-store";
-import { CHARGE_RADIUS, CROSS_ERRROR } from "./constants";
+import { CHARGE_RADIUS, CROSS_ERRROR, SMALL_CHARGE_RADIUS } from "./constants";
 import { Vector, type Point } from "./math";
 import type { Charge } from "./types";
 
@@ -14,7 +14,6 @@ interface DrawConfig extends ConfigState {
     ctx: CanvasRenderingContext2D;
     a: Point;
     b: Point;
-    charges: Charge[]
 }
 
 function isInRect(point: Point, rect: Rect) {
@@ -57,7 +56,7 @@ function drawCharge(ctx: CanvasRenderingContext2D, x: number, y: number, radius:
 }
 
 function getStepSize(normForce: number, dist: number) {
-    return (1 / normForce) * dist / 20;
+    return ((1 / normForce) * dist) / 20;
 }
 
 function calcForce(vecStart: Vector, vecEnd: Vector, chargeStart: number, chargeEnd: number) {
@@ -73,10 +72,7 @@ function getRK4Step({ x, y }: Point, h: number, func: (x: number, y: number) => 
     const k2 = func(x + (h / 2) * k1.x, y + (h / 2) * k1.y);
     const k3 = func(x + (h / 2) * k2.x, y + (h / 2) * k2.y);
     const k4 = func(x + h * k3.x, y + h * k3.y);
-    return new Vector(
-        h / 6 * (k1.x + 2 * k2.x + 2 * k3.x + k4.x),
-        h / 6 * (k1.y + 2 * k2.y + 2 * k3.y + k4.y)
-    );
+    return new Vector((h / 6) * (k1.x + 2 * k2.x + 2 * k3.x + k4.x), (h / 6) * (k1.y + 2 * k2.y + 2 * k3.y + k4.y));
 }
 
 function drawFieldLine(
@@ -110,7 +106,7 @@ function drawFieldLine(
         const normForce = resForceVec.mult(1 / Math.sqrt(Math.abs(forceStart * forceEnd)));
 
         let stepSize = Math.max(cfg.stepSize, getStepSize(normForce.length, dist));
-        if(isInRect({ x, y }, {x1: 0, y1: 0, x2: ctx.canvas.width, y2: ctx.canvas.height})) {
+        if (isInRect({ x, y }, { x1: 0, y1: 0, x2: ctx.canvas.width, y2: ctx.canvas.height })) {
             stepSize = cfg.stepSize;
         }
 
@@ -166,7 +162,7 @@ function drawField(cfg: DrawConfig) {
     const maxStepCnt = results.reduce((prev, curr) => (curr === cfg.maxSteps ? prev + 1 : prev), 0);
     const maximalStep = results.reduce((prev, curr) => (curr === cfg.maxSteps ? prev : Math.max(prev, curr)), 0);
     const sum = results.reduce((prev, curr) => prev + curr, 0);
-    console.log(`maxStepCnt: ${maxStepCnt}, maximalStep: ${maximalStep}, sum: ${sum}`);
+    console.debug(`maxStepCnt: ${maxStepCnt}, maximalStep: ${maximalStep}, sum: ${sum}`);
 }
 
 export function draw(cfg: DrawConfig) {
@@ -182,9 +178,18 @@ export function draw(cfg: DrawConfig) {
         ctx.lineWidth = 2;
         drawCharge(ctx, a.x, a.y, CHARGE_RADIUS, cfg.chargeColor1, cfg.charge1);
         drawCharge(ctx, b.x, b.y, CHARGE_RADIUS, cfg.chargeColor2, cfg.charge2);
+    }
+}
 
-        for (const charge of cfg.charges) {
-            drawCharge(ctx, charge.x, charge.y, CHARGE_RADIUS, cfg.chargeColor1, charge.sign);
-        }
+interface DrawChargesConfig extends ConfigState {
+    charges: Charge[];
+    ctx: CanvasRenderingContext2D;
+}
+export function drawCharges(cfg: DrawChargesConfig) {
+    const { ctx } = cfg;
+    ctx.clearRect(0, 0, ctx.canvas.width, ctx.canvas.height);
+    ctx.lineWidth = 2;
+    for (const charge of cfg.charges) {
+        drawCharge(ctx, charge.x, charge.y, SMALL_CHARGE_RADIUS, cfg.chargeColor1, charge.sign);
     }
 }
