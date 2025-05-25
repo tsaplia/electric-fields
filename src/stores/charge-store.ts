@@ -16,12 +16,12 @@ export const useChargeStore = create<ChargeStore>()((set, get) => ({
     },
     updateCharge: (index: number, x: number, y: number) => {
         const charges = [...get().charges];
-        charges[index] = { sign: charges[index].sign, x, y };
+        charges[index] = { value: charges[index].value, x, y };
         set({ charges });
     },
     removeCharge(index: number) {
         const charges = [...get().charges];
-        if(index === null) return;
+        if (index === null) return;
         charges.splice(index, 1);
         set({ charges });
     },
@@ -36,5 +36,5 @@ type ToolStore = {
 
 export const useToolStore = create<ToolStore>()((set) => ({
     tool: "select",
-    setTool: (tool: Tool) => set({ tool })
+    setTool: (tool: Tool) => set({ tool }),
 }));

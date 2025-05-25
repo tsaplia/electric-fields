@@ -37,19 +37,21 @@ function Canvas({ className }: { className?: string }) {
 
         const ctx = fieldCanvasRef.current.getContext("2d");
         if (ctx) {
-            const a = { x: xScale.toPixel(FIRST_CORDS.x), y: yScale.toPixel(FIRST_CORDS.y) };
-            const b = { x: xScale.toPixel(SECOND_CORDS.x), y: yScale.toPixel(SECOND_CORDS.y) };
+            const a = { x: xScale.toPixel(FIRST_CORDS.x), y: yScale.toPixel(FIRST_CORDS.y), value: config.charge1 };
+            const b = { x: xScale.toPixel(SECOND_CORDS.x), y: yScale.toPixel(SECOND_CORDS.y), value: config.charge2 };
             draw({ ...config, ctx, a, b });
         }
         console.debug("render field");
     }, [config, xScale, yScale]);
 
     useEffect(() => {
-        if(!chargeCanvasRef.current) return;
+        if (!chargeCanvasRef.current) return;
         const ctx = chargeCanvasRef.current.getContext("2d");
         if (ctx) {
-            const pxCharges = charges.map(({ x, y, sign }) => ({ x: xScale.toPixel(x), y: yScale.toPixel(y), sign }));
-            drawCharges({...config, ctx, charges: pxCharges});
+            const a = { x: xScale.toPixel(FIRST_CORDS.x), y: yScale.toPixel(FIRST_CORDS.y), value: config.charge1 };
+            const b = { x: xScale.toPixel(SECOND_CORDS.x), y: yScale.toPixel(SECOND_CORDS.y), value: config.charge2 };
+            const pxCharges = charges.map(({ x, y, value }) => ({ x: xScale.toPixel(x), y: yScale.toPixel(y), value }));
+            drawCharges({ ...config, ctx, charges: pxCharges, a, b });
         }
         console.debug("render charges");
     }, [charges, config, xScale, yScale]);

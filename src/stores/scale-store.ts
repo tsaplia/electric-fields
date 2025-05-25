@@ -1,3 +1,4 @@
+import { SCALE_RANGE } from "@/lib/constants";
 import { Scale } from "@/lib/scale";
 import { create } from "zustand";
 
@@ -11,8 +12,8 @@ type ScaleStore = {
 };
 
 export const useScaleStore = create<ScaleStore>()((set) => ({
-    x: new Scale({ a: 0, b: 0 }, { a: 0, b: 0 }),
-    y: new Scale({ a: 0, b: 0 }, { a: 0, b: 0 }),
+    x: new Scale({ a: 0, b: 0 }, SCALE_RANGE),
+    y: new Scale({ a: 0, b: 0 }, SCALE_RANGE),
     disabled: false,
     setX: (scale: Scale) => set({ x: scale }),
     setY: (scale: Scale) => set({ y: scale }),

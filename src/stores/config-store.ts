@@ -16,14 +16,14 @@ export type ConfigState = {
     showLines: boolean;
     lineColor1: string;
     lineColor2: string;
-    chargeColor1: string;
-    chargeColor2: string;
+    positiveColor: string;
+    negativeColor: string;
     stepSize: number;
     maxSteps: number;
     bothSides: boolean;
 };
 
-const defaultState = {} as {[key: string]: ConfigState[keyof ConfigState]};
+const defaultState = {} as { [key: string]: ConfigState[keyof ConfigState] };
 for (const key in CONFIGS) {
     defaultState[key] = CONFIGS[key as keyof ConfigState].default;
 }
@@ -31,7 +31,7 @@ for (const key in CONFIGS) {
 export const useConfigStore = create<ConfigState & ConfigActions>()(
     persist(
         (set, get) => ({
-            ...defaultState as ConfigState,
+            ...(defaultState as ConfigState),
 
             setConfig: (config, value) => {
                 const cur = get()[config];

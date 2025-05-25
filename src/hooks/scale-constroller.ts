@@ -20,7 +20,6 @@ export function useScaleController(canvasRef: React.RefObject<HTMLDivElement | n
     }, [height, width, setXScale, setYScale]);
 
     useEffect(() => {
-        console.debug("rerender")
         if (!canvasRef.current) return;
 
         const canvas = canvasRef.current;
@@ -34,13 +33,13 @@ export function useScaleController(canvasRef: React.RefObject<HTMLDivElement | n
 
         let last: Point | null = null;
         const handleDown = (e: MouseEvent | TouchEvent) => {
+            e.preventDefault();
             const point = e instanceof MouseEvent ? e : e.touches[0];
             last = { x: point.clientX, y: point.clientY };
         };
 
         const handleMove = (e: MouseEvent | TouchEvent) => {
             if (!last || disabled || (e instanceof MouseEvent && (e.buttons & 1) === 0)) return;
-            if(disabled) return;
             e.preventDefault();
             const point = e instanceof MouseEvent ? e : e.touches[0];
             setXScale(xScaleRef.current.move(last.x - point.clientX));
@@ -50,7 +49,7 @@ export function useScaleController(canvasRef: React.RefObject<HTMLDivElement | n
 
         const handleUp = () => (last = null);
 
-        canvas.addEventListener("wheel", handleWheel);
+        canvas.addEventListener("wheel", handleWheel, { passive: false });
         canvas.addEventListener("mousedown", handleDown);
         canvas.addEventListener("mousemove", handleMove);
         canvas.addEventListener("touchstart", handleDown);
