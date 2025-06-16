@@ -89,13 +89,8 @@ function drawForces(main: Charge, charges: Charge[]) {
 function drawFieldLine(angle: Point, start: Charge, end: Charge, color: string, cfg: DrawConfig) {
     const { ctx } = cfg;
     const dist = new Vector(end.x - start.x, end.y - start.y).length;
-    console.log(dist)
 
     if (start.value == 0) return 0;
-    if (start.value < 0) {
-        start.value = -start.value;
-        end.value = -end.value;
-    }
 
     ctx.beginPath();
     ctx.moveTo(start.x, start.y);
@@ -106,7 +101,10 @@ function drawFieldLine(angle: Point, start: Charge, end: Charge, color: string, 
     let prevRes: Vector | null = null;
     while (steps < cfg.maxSteps) {
         const vecEnd = new Vector(x - end.x, y - end.y);
-        if (vecEnd.length <= CHARGE_RADIUS && end.value !== 0) break;
+        if (vecEnd.length <= cfg.stepSize && end.value !== 0) {
+            if(isInRect({ x, y }, getPaintRect(cfg))) ctx.lineTo(end.x, end.y);
+            break;
+        }
 
         const { resForceVec, forces } = calcForce({ x, y, value: 1 }, [start, end]);
         const normForce = resForceVec.mult(1 / Math.sqrt(Math.abs(forces[0] * forces[1])));
@@ -117,7 +115,8 @@ function drawFieldLine(angle: Point, start: Charge, end: Charge, color: string, 
         }
 
         const change = getRK4Step({ x, y }, stepSize, (_x, _y) => {
-            return calcForce({ x: _x, y: _y, value: 1 }, [start, end]).resForceVec.scale(1);
+            const scale = start.value > 0 ? 1 : -1;
+            return calcForce({ x: _x, y: _y, value: 1 }, [start, end]).resForceVec.scale(scale);
         });
 
         if (isInRect({ x, y }, getPaintRect(cfg))) {
@@ -136,7 +135,6 @@ function drawFieldLine(angle: Point, start: Charge, end: Charge, color: string, 
 
         x += change.x;
         y += change.y;
-
         prevRes = change;
         steps++;
     }

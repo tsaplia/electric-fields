@@ -6,6 +6,8 @@ import { useScaleStore } from "@/stores/scale-store";
 import { useLatest } from "react-use";
 import { SCALING_FACTOR } from "@/lib/constants";
 
+
+//TODO: add reset button
 function Scaler({ className }: { className?: string }) {
     const setXScale = useScaleStore((state) => state.setX);
     const setYScale = useScaleStore((state) => state.setY);

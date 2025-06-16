@@ -46,8 +46,8 @@ function SidebarContent({ className, opened, onClose }: Props) {
                     <AccordionContent>
                         <CheckConfigInput configName="showCharge" label="Charges" />
                         <div className="flex gap-2">
-                            <ConfigInput type="color" configName="chargeColor1"></ConfigInput>
-                            <ConfigInput type="color" configName="chargeColor2"></ConfigInput>
+                            <ConfigInput type="color" configName="positiveColor"></ConfigInput>
+                            <ConfigInput type="color" configName="negativeColor"></ConfigInput>
                         </div>
                         <CheckConfigInput configName="showLines" label="Field lines" />
                         <div className="flex gap-2">

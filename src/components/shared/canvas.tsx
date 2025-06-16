@@ -33,7 +33,7 @@ function Canvas({ className }: { className?: string }) {
     }, [width, height, chargeCanvasRef, fieldCanvasRef]);
 
     useEffect(() => {
-        if (!fieldCanvasRef.current) return;
+        if (!fieldCanvasRef.current || xScale.pxRange.b * yScale.pxRange.b === 0) return;
 
         const ctx = fieldCanvasRef.current.getContext("2d");
         if (ctx) {
@@ -45,7 +45,7 @@ function Canvas({ className }: { className?: string }) {
     }, [config, xScale, yScale]);
 
     useEffect(() => {
-        if (!chargeCanvasRef.current) return;
+        if (!chargeCanvasRef.current || xScale.pxRange.b * yScale.pxRange.b === 0) return;
         const ctx = chargeCanvasRef.current.getContext("2d");
         if (ctx) {
             const a = { x: xScale.toPixel(FIRST_CORDS.x), y: yScale.toPixel(FIRST_CORDS.y), value: config.charge1 };
