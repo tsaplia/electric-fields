@@ -1,3 +1,4 @@
+import { INITIAL_CHARGES } from "@/lib/constants";
 import type { Charge } from "@/lib/types";
 import { create } from "zustand";
 
@@ -9,7 +10,7 @@ type ChargeStore = {
 };
 
 export const useChargeStore = create<ChargeStore>()((set, get) => ({
-    charges: [],
+    charges: INITIAL_CHARGES,
     tool: "pointer",
     addCharge: (charge: Charge) => {
         set((state) => ({ charges: [...state.charges, charge] }));

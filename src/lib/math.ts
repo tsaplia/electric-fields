@@ -43,4 +43,12 @@ class Vector implements Point {
     }
 }
 
+export function distance(a: Point, b: Point) {
+    return Math.sqrt((a.x - b.x) * (a.x - b.x) + (a.y - b.y) * (a.y - b.y));
+}
+
+export function closestIndex(start: Point, points: Point[]) {
+    return points.reduce((prev, curr, i) => (distance(start, curr) < distance(start, points[prev]) ? i : prev), 0);
+}
+
 export { Vector, type Point };

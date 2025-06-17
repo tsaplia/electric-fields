@@ -24,6 +24,14 @@ export class Scale {
         );
     }
 
+    deltaToValue(dPx: number): number {
+        return (dPx / (this.pxRange.b - this.pxRange.a)) * (this.valRange.b - this.valRange.a);
+    }
+
+    deltaToPixel(dVal: number): number {
+        return (dVal / (this.valRange.b - this.valRange.a)) * (this.pxRange.b - this.pxRange.a);
+    }
+
     scale(scale: number, centerPx: number) {
         const centerVal = this.toValue(centerPx);
         const scalePoint = (point: number, center: number) => (point - center) * scale + center;

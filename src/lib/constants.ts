@@ -1,7 +1,6 @@
 import type { ConfigState } from "@/stores/config-store";
 
-export const CHARGE_RADIUS = 7;
-export const SMALL_CHARGE_RADIUS = 8;
+export const CHARGE_RADIUS = 0.7;
 export const CROSS_ERRROR = 1e-7;
 
 type ConfigType = { [K in keyof ConfigState]: { default: ConfigState[K]; min?: number; max?: number } };
@@ -23,9 +22,12 @@ export const CONFIGS: ConfigType = {
     maxSteps: { default: 500000, min: 1, max: 500000 },
 } as const;
 
+export const INITIAL_CHARGES = [
+    { x: 30, y: 50, value: 10 },
+    { x: 70, y: 50, value: -20 },
+];
+
 export const SCALE_RANGE = { a: 0, b: 100 };
-export const FIRST_CORDS = { x: 30, y: 50 } as const;
-export const SECOND_CORDS = { x: 70, y: 50 } as const;
 export const SCALING_FACTOR = 1.15;
 export const MAX_SCALE = 3;
 export const MIN_SCALE = 0.05;
