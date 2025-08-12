@@ -3,6 +3,7 @@ import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from "@/
 import { CheckConfigInput, ConfigInput } from "./config-inputs";
 import { Button } from "@/components/ui/button";
 import { LucideMinimize2 } from "lucide-react";
+import { useConfigStore } from "@/stores/config-store";
 
 type Props = {
     className?: string;
@@ -11,6 +12,7 @@ type Props = {
 };
 
 function SidebarContent({ className, opened, onClose }: Props) {
+    const hideAllLines = useConfigStore((state) => state.hideAllLines);
     return (
         <aside
             className={cn(
@@ -20,51 +22,44 @@ function SidebarContent({ className, opened, onClose }: Props) {
             )}
         >
             <div className="flex items-center pb-5 text-secondary-foreground">
-                <h2 className="text-2xl text-neutral-800 font-semibold tracking-tight first:mt-0 mr-auto">
-                    Settings
-                </h2>
+                <h2 className="text-2xl text-neutral-800 font-semibold tracking-tight first:mt-0 mr-auto">Settings</h2>
                 <Button className="-mr-2" variant={"ghost"} size={"icon"} onClick={onClose}>
                     <LucideMinimize2 />
                 </Button>
             </div>
-            <Accordion type="multiple" className="w-full" defaultValue={["general"]}>
-                <AccordionItem value="general">
-                    <AccordionTrigger className="font-normal">General</AccordionTrigger>
-                    <AccordionContent>
-                        <ConfigInput type="number" configName="charge1" label="First charge"></ConfigInput>
-                        <ConfigInput type="number" configName="charge2" label="Second charge"></ConfigInput>
-                        <ConfigInput type="number" configName="lineCount" label="Line Count"></ConfigInput>
-                        <ConfigInput
-                            type="number"
-                            configName="offset"
-                            label="First line offset"
-                        ></ConfigInput>
-                    </AccordionContent>
-                </AccordionItem>
+            <Accordion type="multiple" className="w-full" defaultValue={["appearance"]}>
                 <AccordionItem value="appearance">
                     <AccordionTrigger>Appearance</AccordionTrigger>
                     <AccordionContent>
-                        <CheckConfigInput configName="showCharge" label="Charges" />
-                        <div className="flex gap-2">
-                            <ConfigInput type="color" configName="positiveColor"></ConfigInput>
-                            <ConfigInput type="color" configName="negativeColor"></ConfigInput>
+                        <ConfigInput type="number" configName="chargeDisplayRadius" label="Charge display radius" />
+                        <div className="w-full col-span-2 grid grid-cols-2 gap-2">
+                            <div className="flex gap-2">
+                                <ConfigInput type="color" configName="positiveColor" label="Positive"></ConfigInput>
+                            </div>
+                            <div className="flex gap-2">
+                                <ConfigInput type="color" configName="negativeColor" label="Negative"></ConfigInput>
+                            </div>
                         </div>
-                        <CheckConfigInput configName="showLines" label="Field lines" />
-                        <div className="flex gap-2">
-                            <ConfigInput type="color" configName="lineColor1"></ConfigInput>
-                            <ConfigInput type="color" configName="lineColor2"></ConfigInput>
-                        </div>
-                        <CheckConfigInput className="col-span-2" configName="showForce" label="Forces" />
-                    </AccordionContent>
-                </AccordionItem>
-                <AccordionItem value="techinical">
-                    <AccordionTrigger>Techinical</AccordionTrigger>
-                    <AccordionContent>
+                        <CheckConfigInput className="col-span-2" configName="hideGrid" label="Hide grid" />
+                        <CheckConfigInput className="col-span-2" configName="hideAllCharges" label="Hide all charges" />
+                        <CheckConfigInput className="col-span-2" configName="hideAllLines" label="Hide all lines" />
                         <CheckConfigInput
                             className="col-span-2"
-                            configName="bothSides"
-                            label="Paint from both sides"
+                            configName="hideNegativeLines"
+                            label="Hide negative lines"
+                            disabled={hideAllLines}
                         />
+                        <CheckConfigInput
+                            className="col-span-2"
+                            configName="hidePositiveLines"
+                            label="Hide positive lines"
+                            disabled={hideAllLines}
+                        />
+                    </AccordionContent>
+                </AccordionItem>
+                <AccordionItem value="dev">
+                    <AccordionTrigger>Dev Options</AccordionTrigger>
+                    <AccordionContent>
                         <ConfigInput type="number" configName="stepSize" label="Step size" />
                         <ConfigInput type="number" configName="maxSteps" label="Max steps" />
                     </AccordionContent>

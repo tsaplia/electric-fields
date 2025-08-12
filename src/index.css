@@ -11,7 +11,7 @@
 }
 
 [data-slot="accordion-content"] > :first-child {
-    @apply grid grid-cols-[auto_1fr] gap-y-4 place-items-center;
+    @apply grid grid-cols-[auto_1fr] gap-y-2 place-items-center;
 }
 
 [data-slot="accordion-content"] > :first-child > * {

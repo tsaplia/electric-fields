@@ -1,0 +1,7 @@
+[data-slot="accordion-content"] > :first-child {
+    @apply grid grid-cols-[auto_1fr] gap-y-4 place-items-center;
+}
+
+[data-slot="accordion-content"] > :first-child > * {
+    @apply justify-self-start mr-4;
+}

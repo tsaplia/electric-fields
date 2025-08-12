@@ -1,6 +1,5 @@
 import { useChargeController } from "@/hooks/charge-controller";
 import { useScaleController } from "@/hooks/scale-constroller";
-import { CHARGE_RADIUS } from "@/lib/constants";
 import { draw } from "@/lib/painter";
 import { useChargeStore } from "@/stores/charge-store";
 import { useConfigStore } from "@/stores/config-store";
@@ -41,7 +40,7 @@ function Canvas({ className }: { className?: string }) {
         const pxCharges = charges.map(({ x, y, value }) => ({ x: xScale.toPixel(x), y: yScale.toPixel(y), value }));
 
         ctx.clearRect(0, 0, ctx.canvas.width, ctx.canvas.height);
-        draw({ ...config, ctx, charges: pxCharges, chargeRadius: xScale.deltaToPixel(CHARGE_RADIUS) });
+        draw({ ...config, ctx, charges: pxCharges});
         console.debug("Rerender canvas");
     }, [config, xScale, yScale, charges]);
 

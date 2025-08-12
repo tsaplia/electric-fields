@@ -11,14 +11,15 @@ type CheckInputProps = {
     configName: keyof ConfigState;
     label: string;
     className?: string;
+    disabled?: boolean
 };
 
-export function CheckConfigInput({ configName, className, label }: CheckInputProps) {
+export function CheckConfigInput({ configName, className, label, disabled }: CheckInputProps) {
     const value = useConfigStore((state) => state[configName]);
     const setConfig = useConfigStore((state) => state.setConfig);
     return (
         <div className={cn("flex gap-2 items-center", className)}>
-            <Checkbox id={configName} onCheckedChange={() => setConfig(configName, !value)} checked={!!value} />
+            <Checkbox id={configName} onCheckedChange={() => setConfig(configName, !value)} checked={!!value} disabled={disabled}/>
             <Label htmlFor={configName}>{label}</Label>
         </div>
     );

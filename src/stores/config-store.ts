@@ -1,26 +1,24 @@
 import { CONFIGS } from "@/lib/constants";
 import { create } from "zustand";
-import { persist } from "zustand/middleware";
 
 interface ConfigActions {
     setConfig: <T extends keyof ConfigState>(config: T, value: ConfigState[T]) => void;
 }
 
 export type ConfigState = {
-    charge1: number;
-    charge2: number;
-    lineCount: number;
-    offset: number;
-    showForce: boolean;
-    showCharge: boolean;
-    showLines: boolean;
-    lineColor1: string;
-    lineColor2: string;
+    // Appearance
     positiveColor: string;
     negativeColor: string;
+    hideAllCharges: boolean;
+    hideAllLines: boolean;
+    hideNegativeLines: boolean;
+    hidePositiveLines: boolean;
+    chargeDisplayRadius: number;
+    hideGrid: boolean;
+
+    // Dev options
     stepSize: number;
     maxSteps: number;
-    bothSides: boolean;
 };
 
 const defaultState = {} as { [key: string]: ConfigState[keyof ConfigState] };
@@ -28,18 +26,11 @@ for (const key in CONFIGS) {
     defaultState[key] = CONFIGS[key as keyof ConfigState].default;
 }
 
-export const useConfigStore = create<ConfigState & ConfigActions>()(
-    persist(
-        (set, get) => ({
-            ...(defaultState as ConfigState),
+export const useConfigStore = create<ConfigState & ConfigActions>()((set, get) => ({
+    ...(defaultState as ConfigState),
 
-            setConfig: (config, value) => {
-                const cur = get()[config];
-                if (cur !== value) set(() => ({ [config]: value }));
-            },
-        }),
-        {
-            name: "config-store",
-        }
-    )
-);
+    setConfig: (config, value) => {
+        const cur = get()[config];
+        if (cur !== value) set(() => ({ [config]: value }));
+    },
+}));

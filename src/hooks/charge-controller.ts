@@ -1,4 +1,4 @@
-import { CHARGE_RADIUS } from "@/lib/constants";
+import { CHARGE_DETECTION_RADIUS } from "@/lib/constants";
 import { closestIndex, distance } from "@/lib/math";
 import { useChargeStore, useToolStore } from "@/stores/charge-store";
 import { useScaleStore } from "@/stores/scale-store";
@@ -24,9 +24,11 @@ export function useChargeController(canvasRef: React.RefObject<HTMLDivElement | 
             const sign = tool === "electron" ? 1 : -1;
 
             const ci = closestIndex({ x, y }, cs.charges);
-            if (cs.charges[ci] && distance(cs.charges[ci], { x, y }) < CHARGE_RADIUS && sign * cs.charges[ci].value > 0) {
+            const dist = cs.charges[ci] ? distance({ x, y }, cs.charges[ci]) : Infinity;
+            if (dist < CHARGE_DETECTION_RADIUS && sign * cs.charges[ci].value > 0) {
                 cs.removeCharge(ci);
-            } else {
+            } else if (dist > 2 * CHARGE_DETECTION_RADIUS) {
+                console.log("ADD", dist, cs.charges[ci]);
                 cs.addCharge({ value: sign * 10, x, y });
             }
         };
@@ -39,7 +41,7 @@ export function useChargeController(canvasRef: React.RefObject<HTMLDivElement | 
             const pointPx = e instanceof MouseEvent ? e : e.touches[0];
             const point = { x: scaleX.toValue(pointPx.clientX), y: scaleY.toValue(pointPx.clientY) };
             const ci = closestIndex(point, cs.charges);
-            if (cs.charges[ci] && distance(cs.charges[ci], point) <= CHARGE_RADIUS) {
+            if (cs.charges[ci] && distance(cs.charges[ci], point) <= CHARGE_DETECTION_RADIUS) {
                 setDisabled(true);
                 setMovingIndex(ci);
             }
@@ -47,8 +49,13 @@ export function useChargeController(canvasRef: React.RefObject<HTMLDivElement | 
 
         const handleMove = (e: TouchEvent | MouseEvent) => {
             if (movingIndex === null || (e instanceof MouseEvent && (e.buttons & 1) === 0)) return;
-            const point = e instanceof MouseEvent ? e : e.touches[0];
-            cs.updateCharge(movingIndex, scaleX.toValue(point.clientX), scaleY.toValue(point.clientY));
+            const pointPx = e instanceof MouseEvent ? e : e.touches[0];
+            const point = { x: scaleX.toValue(pointPx.clientX), y: scaleY.toValue(pointPx.clientY) };
+            const ci = closestIndex(point, [...cs.charges.slice(0, movingIndex), ...cs.charges.slice(movingIndex + 1)]);
+            if (!cs.charges[ci] || distance(cs.charges[ci], point) > 2 * CHARGE_DETECTION_RADIUS) {
+                console.log("MOVE", distance(cs.charges[ci], point), cs.charges[ci]);
+                cs.updateCharge(movingIndex, point.x, point.y);
+            }
         };
 
         const handleUp = () => {

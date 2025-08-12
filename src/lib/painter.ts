@@ -13,7 +13,6 @@ type Rect = {
 interface DrawConfig extends ConfigState {
     ctx: CanvasRenderingContext2D;
     charges: Charge[];
-    chargeRadius: number;
 }
 
 function isInRect(point: Point, rect: Rect) {
@@ -52,16 +51,16 @@ function getRK4Step({ x, y }: Point, h: number, func: (x: number, y: number) => 
     return new Vector((h / 6) * (k1.x + 2 * k2.x + 2 * k3.x + k4.x), (h / 6) * (k1.y + 2 * k2.y + 2 * k3.y + k4.y));
 }
 
-function drawCharge(charge: Charge, radius: number, { ctx, positiveColor, negativeColor }: DrawConfig) {
-    ctx.fillStyle = charge.value > 0 ? positiveColor : charge.value < 0 ? negativeColor : "#FFFFFF";
+function drawCharge(charge: Charge, { ctx, positiveColor, negativeColor, chargeDisplayRadius }: DrawConfig) {
+    ctx.fillStyle = charge.value > 0 ? positiveColor : negativeColor;
     ctx.strokeStyle = "#000000";
 
     ctx.beginPath();
-    ctx.arc(charge.x, charge.y, radius, 0, 2 * Math.PI);
+    ctx.arc(charge.x, charge.y, chargeDisplayRadius, 0, 2 * Math.PI);
     ctx.fill();
     ctx.stroke();
 
-    const size = radius * 0.5;
+    const size = chargeDisplayRadius * 0.5;
     if (charge.value != 0) {
         ctx.beginPath();
         ctx.moveTo(charge.x - size, charge.y);
@@ -152,13 +151,14 @@ function drawField(cfg: DrawConfig) {
 
     cfg.charges.forEach((start, ind) => {
         const startVecs: Vector[] = [];
-        startVecs.push(new Vector(0, cfg.stepSize).rotate(cfg.offset * (Math.PI / 180)));
+        startVecs.push(new Vector(0, cfg.stepSize).rotate(1 * (Math.PI / 180))); // TODO: change
         for (let i = 1; i < Math.abs(start.value); i++) {
             startVecs.push(startVecs[i - 1].rotate((2 * Math.PI) / Math.abs(start.value)));
         }
 
         const results: number[] = [];
         for (const vec of startVecs) {
+            if ((start.value > 0 && cfg.hidePositiveLines) || (start.value < 0 && cfg.hideNegativeLines)) continue;
             const color = start.value > 0 ? cfg.positiveColor : cfg.negativeColor;
             const other = cfg.charges.filter((c) => c !== start);
             const steps = drawFieldLine(vec, start, other, color, cfg);
@@ -173,14 +173,14 @@ function drawField(cfg: DrawConfig) {
 
 export function draw(cfg: DrawConfig) {
     const { ctx } = cfg;
-    if (cfg.showLines) {
+    if (!cfg.hideAllLines) {
         ctx.lineWidth = 1;
         drawField(cfg);
     }
 
-    if (cfg.showCharge) {
-        ctx.lineWidth = cfg.chargeRadius * 0.15;
+    if (!cfg.hideAllCharges) {
+        ctx.lineWidth = cfg.chargeDisplayRadius * 0.15;
         ctx.lineCap = "round";
-        cfg.charges.forEach((charge) => drawCharge(charge, cfg.chargeRadius, cfg));
+        cfg.charges.forEach((charge) => drawCharge(charge, cfg));
     }
 }
