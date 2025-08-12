@@ -1,7 +1,7 @@
 import { cn } from "@/lib/utils";
 import { ToggleGroup, ToggleGroupItem } from "@/components/ui/toggle-group";
 import { LucideCircleMinus, LucideCirclePlus, LucideMousePointer2 } from "lucide-react";
-import { useToolStore } from "@/stores/charge-store";
+import { useToolStore } from "@/stores/tool-store";
 
 function ToolGroup({ className }: { className?: string }) {
     const setTool = useToolStore((state) => state.setTool);

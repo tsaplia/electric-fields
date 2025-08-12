@@ -1,7 +1,13 @@
 export type Charge = {
+    id?: number;
     x: number;
     y: number;
     value: number;
+    lineRotation?: number;
+    hideLines?: boolean;
+    hideCharge?: boolean;
+    lineColor?: string;
+    chargeColor?: string;
 };
 
 export type ConfigsType = {

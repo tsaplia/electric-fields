@@ -1,7 +1,8 @@
 import { CHARGE_DETECTION_RADIUS } from "@/lib/constants";
 import { closestIndex, distance } from "@/lib/math";
-import { useChargeStore, useToolStore } from "@/stores/charge-store";
+import { useChargeStore } from "@/stores/charge-store";
 import { useScaleStore } from "@/stores/scale-store";
+import { useToolStore } from "@/stores/tool-store";
 import { useEffect, useState } from "react";
 
 export function useChargeController(canvasRef: React.RefObject<HTMLDivElement | null>) {
@@ -26,7 +27,7 @@ export function useChargeController(canvasRef: React.RefObject<HTMLDivElement | 
             const ci = closestIndex({ x, y }, cs.charges);
             const dist = cs.charges[ci] ? distance({ x, y }, cs.charges[ci]) : Infinity;
             if (dist < CHARGE_DETECTION_RADIUS && sign * cs.charges[ci].value > 0) {
-                cs.removeCharge(ci);
+                cs.removeCharge(cs.charges[ci].id!);
             } else if (dist > 2 * CHARGE_DETECTION_RADIUS) {
                 console.log("ADD", dist, cs.charges[ci]);
                 cs.addCharge({ value: sign * 10, x, y });
@@ -54,7 +55,7 @@ export function useChargeController(canvasRef: React.RefObject<HTMLDivElement | 
             const ci = closestIndex(point, [...cs.charges.slice(0, movingIndex), ...cs.charges.slice(movingIndex + 1)]);
             if (!cs.charges[ci] || distance(cs.charges[ci], point) > 2 * CHARGE_DETECTION_RADIUS) {
                 console.log("MOVE", distance(cs.charges[ci], point), cs.charges[ci]);
-                cs.updateCharge(movingIndex, point.x, point.y);
+                cs.updateCharge(cs.charges[ci].id!, point);
             }
         };
 

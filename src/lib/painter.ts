@@ -51,7 +51,12 @@ function getRK4Step({ x, y }: Point, h: number, func: (x: number, y: number) => 
 }
 
 function drawCharge(charge: Charge, { ctx, positiveColor, negativeColor, chargeDisplayRadius }: DrawConfig) {
-    ctx.fillStyle = charge.value > 0 ? positiveColor : negativeColor;
+    console.log("drawing", charge)
+    if (charge.hideCharge) {
+        console.log("charge is hidden");
+        return;
+    }
+    ctx.fillStyle = charge.chargeColor || (charge.value > 0 ? positiveColor : negativeColor);
     ctx.strokeStyle = "#000000";
 
     ctx.beginPath();
@@ -149,6 +154,10 @@ function drawField(cfg: DrawConfig) {
     if (!cfg.charges.length) return;
 
     cfg.charges.forEach((start, ind) => {
+        if ((start.value > 0 && cfg.hidePositiveLines) || (start.value < 0 && cfg.hideNegativeLines) || start.hideLines) {
+            return;
+        }
+
         const startVecs: Vector[] = [];
         startVecs.push(new Vector(0, cfg.stepSize).rotate(1 * (Math.PI / 180))); // TODO: change
         for (let i = 1; i < Math.abs(start.value); i++) {
@@ -157,8 +166,7 @@ function drawField(cfg: DrawConfig) {
 
         const results: number[] = [];
         for (const vec of startVecs) {
-            if ((start.value > 0 && cfg.hidePositiveLines) || (start.value < 0 && cfg.hideNegativeLines)) continue;
-            const color = start.value > 0 ? cfg.positiveColor : cfg.negativeColor;
+            const color = start.lineColor || (start.value > 0 ? cfg.positiveColor : cfg.negativeColor);
             const other = cfg.charges.filter((c) => c !== start);
             const steps = drawFieldLine(vec, start, other, color, cfg);
             results.push(steps);

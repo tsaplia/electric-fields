@@ -22,10 +22,6 @@ function Canvas({ className }: { className?: string }) {
     useChargeController(intercationRef);
 
     useEffect(() => {
-        console.log(charges);
-    }, [charges]);
-
-    useEffect(() => {
         if (!canvasRef.current) return;
 
         canvasRef.current.width = width;
@@ -37,7 +33,7 @@ function Canvas({ className }: { className?: string }) {
         const ctx = canvasRef.current.getContext("2d");
         if (!ctx) return;
 
-        const pxCharges = charges.map(({ x, y, value }) => ({ x: xScale.toPixel(x), y: yScale.toPixel(y), value }));
+        const pxCharges = charges.map(({ x, y, ...rest }) => ({...rest, x: xScale.toPixel(x), y: yScale.toPixel(y) }));
 
         ctx.clearRect(0, 0, ctx.canvas.width, ctx.canvas.height);
         draw({ ...config, ctx, charges: pxCharges});

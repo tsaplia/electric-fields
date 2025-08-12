@@ -2,8 +2,10 @@ import { cn } from "@/lib/utils";
 import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from "@/components/ui/accordion";
 import { CheckConfigInput, ConfigInput } from "./config-inputs";
 import { Button } from "@/components/ui/button";
-import { LucideMinimize2 } from "lucide-react";
+import { LucideMinimize2, LucidePlus } from "lucide-react";
 import { useConfigStore } from "@/stores/config-store";
+import ChargeInfo from "./charge-info";
+import { useChargeStore } from "@/stores/charge-store";
 
 type Props = {
     className?: string;
@@ -13,10 +15,13 @@ type Props = {
 
 function SidebarContent({ className, opened, onClose }: Props) {
     const hideAllLines = useConfigStore((state) => state.hideAllLines);
+
+    const charges = useChargeStore((state) => state.charges);
+
     return (
         <aside
             className={cn(
-                "h-full card py-4 transition-all duration-300 overflow-auto",
+                "h-full card py-4 transition-all duration-300 overflow-auto shadow-lg",
                 opened ? "w-80 px-6" : "w-0 px-0 border-0",
                 className
             )}
@@ -27,7 +32,34 @@ function SidebarContent({ className, opened, onClose }: Props) {
                     <LucideMinimize2 />
                 </Button>
             </div>
-            <Accordion type="multiple" className="w-full" defaultValue={["appearance"]}>
+            <Accordion type="multiple" className="w-full" defaultValue={["charges"]}>
+                <AccordionItem value="charges">
+                    <AccordionTrigger>Charges</AccordionTrigger>
+                    <AccordionContent className="flex flex-col gap-2">
+                        <div className="flex items-center justify-between mb-2">
+                            <span className="text-sm text-muted-foreground">
+                                {charges.length} charge{charges.length !== 1 ? "s" : ""}
+                            </span>
+                            <Button size="sm" variant="outline">
+                                <LucidePlus className="h-4 w-4 mr-1" />
+                                Add
+                            </Button>
+                        </div>
+
+                        <div className="space-y-2 max-h-64 overflow-y-auto">
+                            {charges.map((charge) => (
+                                <ChargeInfo key={charge.id} charge={charge} />
+                            ))}
+                        </div>
+
+                        {charges.length === 0 && (
+                            <div className="text-center py-8 text-muted-foreground">
+                                <p className="text-sm">No charges added yet</p>
+                            </div>
+                        )}
+                    </AccordionContent>
+                </AccordionItem>
+
                 <AccordionItem value="appearance">
                     <AccordionTrigger>Appearance</AccordionTrigger>
                     <AccordionContent className="flex flex-col gap-2">

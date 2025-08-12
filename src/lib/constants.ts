@@ -22,8 +22,8 @@ export const CONFIGS: ConfigType = {
 } as const;
 
 export const INITIAL_CHARGES = [
-    { x: 30, y: 50, value: 18 },
-    { x: 70, y: 50, value: -18 },
+    { id: 0, x: 30, y: 50, value: 18 },
+    { id: 1, x: 70, y: 50, value: -18 },
 ];
 
 export const SCALE_RANGE = { a: 0, b: 100 };
