@@ -10,14 +10,6 @@
     }
 }
 
-[data-slot="accordion-content"] > :first-child {
-    @apply grid grid-cols-[auto_1fr] gap-y-2 place-items-center;
-}
-
-[data-slot="accordion-content"] > :first-child > * {
-    @apply justify-self-start mr-4;
-}
-
 @theme inline {
     --radius-sm: calc(var(--radius) - 4px);
     --radius-md: calc(var(--radius) - 2px);

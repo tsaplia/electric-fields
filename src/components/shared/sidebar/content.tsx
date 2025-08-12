@@ -16,7 +16,7 @@ function SidebarContent({ className, opened, onClose }: Props) {
     return (
         <aside
             className={cn(
-                "h-full card py-4 transition-all duration-300 overflow-hidden",
+                "h-full card py-4 transition-all duration-300 overflow-auto",
                 opened ? "w-80 px-6" : "w-0 px-0 border-0",
                 className
             )}
@@ -30,27 +30,26 @@ function SidebarContent({ className, opened, onClose }: Props) {
             <Accordion type="multiple" className="w-full" defaultValue={["appearance"]}>
                 <AccordionItem value="appearance">
                     <AccordionTrigger>Appearance</AccordionTrigger>
-                    <AccordionContent>
-                        <ConfigInput type="number" configName="chargeDisplayRadius" label="Charge display radius" />
-                        <div className="w-full col-span-2 grid grid-cols-2 gap-2">
-                            <div className="flex gap-2">
-                                <ConfigInput type="color" configName="positiveColor" label="Positive"></ConfigInput>
-                            </div>
-                            <div className="flex gap-2">
-                                <ConfigInput type="color" configName="negativeColor" label="Negative"></ConfigInput>
-                            </div>
+                    <AccordionContent className="flex flex-col gap-2">
+                        <ConfigInput
+                            type="number"
+                            configName="chargeDisplayRadius"
+                            label="Charge display radius"
+                            className="justify-between"
+                        />
+                        <div className="grid grid-cols-2 gap-2">
+                            <ConfigInput type="color" configName="positiveColor" label="Positive"></ConfigInput>
+                            <ConfigInput type="color" configName="negativeColor" label="Negative"></ConfigInput>
                         </div>
-                        <CheckConfigInput className="col-span-2" configName="hideGrid" label="Hide grid" />
-                        <CheckConfigInput className="col-span-2" configName="hideAllCharges" label="Hide all charges" />
-                        <CheckConfigInput className="col-span-2" configName="hideAllLines" label="Hide all lines" />
+                        <CheckConfigInput configName="hideGrid" label="Hide grid" />
+                        <CheckConfigInput configName="hideAllCharges" label="Hide all charges" />
+                        <CheckConfigInput configName="hideAllLines" label="Hide all lines" />
                         <CheckConfigInput
-                            className="col-span-2"
                             configName="hideNegativeLines"
                             label="Hide negative lines"
                             disabled={hideAllLines}
                         />
                         <CheckConfigInput
-                            className="col-span-2"
                             configName="hidePositiveLines"
                             label="Hide positive lines"
                             disabled={hideAllLines}
@@ -59,9 +58,9 @@ function SidebarContent({ className, opened, onClose }: Props) {
                 </AccordionItem>
                 <AccordionItem value="dev">
                     <AccordionTrigger>Dev Options</AccordionTrigger>
-                    <AccordionContent>
-                        <ConfigInput type="number" configName="stepSize" label="Step size" />
-                        <ConfigInput type="number" configName="maxSteps" label="Max steps" />
+                    <AccordionContent className="flex flex-col gap-2">
+                        <ConfigInput type="number" configName="stepSize" label="Step size" className="justify-between" />
+                        <ConfigInput type="number" configName="maxSteps" label="Max steps" className="justify-between" />
                     </AccordionContent>
                 </AccordionItem>
             </Accordion>

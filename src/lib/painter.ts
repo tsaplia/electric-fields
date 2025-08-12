@@ -1,7 +1,6 @@
-import type { ConfigState } from "@/stores/config-store";
 import { CROSS_ERRROR } from "./constants";
 import { closestIndex, distance, Vector, type Point } from "./math";
-import type { Charge } from "./types";
+import type { Charge, ConfigsType } from "../types";
 
 type Rect = {
     x1: number;
@@ -10,7 +9,7 @@ type Rect = {
     y2: number;
 };
 
-interface DrawConfig extends ConfigState {
+interface DrawConfig extends ConfigsType {
     ctx: CanvasRenderingContext2D;
     charges: Charge[];
 }

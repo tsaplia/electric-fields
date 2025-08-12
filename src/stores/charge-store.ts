@@ -1,5 +1,5 @@
 import { INITIAL_CHARGES } from "@/lib/constants";
-import type { Charge } from "@/lib/types";
+import type { Charge } from "@/types";
 import { create } from "zustand";
 
 type ChargeStore = {

@@ -1,33 +1,18 @@
 import { CONFIGS } from "@/lib/constants";
+import type { ConfigsType } from "@/types";
 import { create } from "zustand";
 
 interface ConfigActions {
-    setConfig: <T extends keyof ConfigState>(config: T, value: ConfigState[T]) => void;
+    setConfig: <T extends keyof ConfigsType>(config: T, value: ConfigsType[T]) => void;
 }
 
-export type ConfigState = {
-    // Appearance
-    positiveColor: string;
-    negativeColor: string;
-    hideAllCharges: boolean;
-    hideAllLines: boolean;
-    hideNegativeLines: boolean;
-    hidePositiveLines: boolean;
-    chargeDisplayRadius: number;
-    hideGrid: boolean;
-
-    // Dev options
-    stepSize: number;
-    maxSteps: number;
-};
-
-const defaultState = {} as { [key: string]: ConfigState[keyof ConfigState] };
+const defaultState = {} as { [key: string]: ConfigsType[keyof ConfigsType] };
 for (const key in CONFIGS) {
-    defaultState[key] = CONFIGS[key as keyof ConfigState].default;
+    defaultState[key] = CONFIGS[key as keyof ConfigsType].default;
 }
 
-export const useConfigStore = create<ConfigState & ConfigActions>()((set, get) => ({
-    ...(defaultState as ConfigState),
+export const useConfigStore = create<ConfigsType & ConfigActions>()((set, get) => ({
+    ...(defaultState as ConfigsType),
 
     setConfig: (config, value) => {
         const cur = get()[config];
