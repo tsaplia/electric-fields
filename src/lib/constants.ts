@@ -21,9 +21,11 @@ export const CONFIGS: ConfigType = {
     maxSteps: { default: 500000, min: 1, max: 500000 },
 } as const;
 
+export const DEFAULT_CHARGE_VALUE = 18;
+
 export const INITIAL_CHARGES = [
-    { id: 0, x: 30, y: 50, value: 18 },
-    { id: 1, x: 70, y: 50, value: -18 },
+    { id: 0, x: 30, y: 50, value: DEFAULT_CHARGE_VALUE },
+    { id: 1, x: 70, y: 50, value: -DEFAULT_CHARGE_VALUE },
 ];
 
 export const SCALE_RANGE = { a: 0, b: 100 };

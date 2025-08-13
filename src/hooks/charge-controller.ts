@@ -1,4 +1,4 @@
-import { CHARGE_DETECTION_RADIUS } from "@/lib/constants";
+import { CHARGE_DETECTION_RADIUS, DEFAULT_CHARGE_VALUE } from "@/lib/constants";
 import { closestIndex, distance } from "@/lib/math";
 import { useChargeStore } from "@/stores/charge-store";
 import { useScaleStore } from "@/stores/scale-store";
@@ -30,7 +30,7 @@ export function useChargeController(canvasRef: React.RefObject<HTMLDivElement | 
                 cs.removeCharge(cs.charges[ci].id!);
             } else if (dist > 2 * CHARGE_DETECTION_RADIUS) {
                 console.log("ADD", dist, cs.charges[ci]);
-                cs.addCharge({ value: sign * 10, x, y });
+                cs.addCharge({ value: sign * DEFAULT_CHARGE_VALUE, x, y });
             }
         };
 

@@ -4,13 +4,19 @@ import { create } from "zustand";
 
 type ChargeStore = {
     charges: Charge[];
+    activeChargeId: number | null;
+    modalOpen: boolean;
     addCharge: (charge: Charge) => void;
     updateCharge: (id: number, data: Partial<Charge>) => void;
     removeCharge: (id: number) => void;
+    setActive: (id: number) => void;
+    setModal: (open: boolean) => void;
 };
 
 export const useChargeStore = create<ChargeStore>()((set, get) => ({
     charges: INITIAL_CHARGES,
+    activeChargeId: null,
+    modalOpen: false,
     addCharge: (charge: Charge) => {
         set((state) => {
             charge.id = state.charges.at(-1)?.id || 0;
@@ -29,4 +35,10 @@ export const useChargeStore = create<ChargeStore>()((set, get) => ({
         charges.splice(index, 1);
         set({ charges });
     },
+    setActive(id: number) {
+        set({ activeChargeId: id });
+    },
+    setModal(open: boolean) {
+        set({modalOpen: open})
+    }
 }));
