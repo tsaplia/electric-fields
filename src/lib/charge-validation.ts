@@ -33,13 +33,13 @@ export const chargeFormSchema = z.object({
         .string()
         .optional()
         .refine((val) => !val || /^#[0-9A-F]{6}$/i.test(val), "Charge color must be a valid hex color")
-        .transform((val) => (val === "#000000" ? undefined : val)),
+        .transform((val) => (val === "" ? undefined : val)),
 
     lineColor: z
         .string()
         .optional()
         .refine((val) => !val || /^#[0-9A-F]{6}$/i.test(val), "Line color must be a valid hex color")
-        .transform((val) => (val === "#000000" ? undefined : val)),
+        .transform((val) => (val === "" ? undefined : val)),
 
     hideCharge: z
         .string()

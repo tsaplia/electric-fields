@@ -8,6 +8,7 @@ import { DEFAULT_CHARGE_VALUE } from "@/lib/constants";
 import { useEffect, useState } from "react";
 import { useChargeStore } from "@/stores/charge-store";
 import { validateForm, type ValidationError } from "@/lib/charge-validation";
+import ColorInput from "./color-input";
 
 function ChargeEditModal() {
     const { charges, removeCharge, updateCharge, addCharge, setModal, modalOpen, activeChargeId } = useChargeStore();
@@ -130,30 +131,8 @@ function ChargeEditModal() {
                     <div className="space-y-4">
                         <h4 className="text-sm font-medium text-muted-foreground">Appearance</h4>
                         <div className="grid grid-cols-2 gap-8">
-                            <div className="flex">
-                                <Label htmlFor="chargeColor" className="me-4">
-                                    Charge Color
-                                </Label>
-                                <Input
-                                    name="chargeColor"
-                                    id="chargeColor"
-                                    type="color"
-                                    className="w-9 px-1"
-                                    defaultValue={charge?.chargeColor}
-                                />
-                            </div>
-                            <div className="flex">
-                                <Label htmlFor="lineColor" className="me-4">
-                                    Line Color
-                                </Label>
-                                <Input
-                                    name="lineColor"
-                                    id="lineColor"
-                                    type="color"
-                                    className="w-9 px-1"
-                                    defaultValue={charge?.lineColor}
-                                />
-                            </div>
+                            <ColorInput name="chargeColor" label="Charge Color" defaultValue={charge?.chargeColor} />
+                            <ColorInput name="lineColor" label="Line Color" defaultValue={charge?.lineColor} />
                         </div>
                         <div className="flex items-center space-x-2">
                             <Checkbox name="hideCharge" id="hideCharge" defaultChecked={charge?.hideCharge ?? false} />
@@ -189,5 +168,7 @@ function ChargeEditModal() {
         </Dialog>
     );
 }
+
+
 
 export default ChargeEditModal;

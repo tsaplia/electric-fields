@@ -2,7 +2,7 @@ import Canvas from "@/components/shared/canvas";
 import Sidebar from "@/components/shared/sidebar/sidebar";
 import ToolGroup from "@/components/shared/tool-group";
 import Scaler from "@/components/shared/scaler";
-import ChargeEditModal from "./components/shared/charge-edit-modal";
+import ChargeEditModal from "./components/shared/edit-modal.tsx/charge-edit-modal";
 import { useChargeStore } from "./stores/charge-store";
 import { useEffect } from "react";
 
