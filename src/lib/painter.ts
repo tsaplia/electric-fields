@@ -78,13 +78,13 @@ function drawCharge(charge: Charge, { ctx, positiveColor, negativeColor, chargeD
 /* check if new vector is "closer" to the -end vector */
 function crossCheck({ x, y }: Point, points: Point[], change: Vector, prevChange: Vector) {
     if (points.length === 0) return false;
-    let mxCross = -Infinity;
-    for (const charge of points) {
-        const vecEnd = new Vector(x - charge.x, y - charge.y);
-        const crossMult = prevChange.cross(change) * prevChange.cross(vecEnd.scale(change.length)); // shouls be negative
-        mxCross = Math.max(mxCross, crossMult);
-    }
-    return mxCross < -CROSS_ERRROR;
+
+    const crossMults = points.map((point) => {
+        const vecEnd = new Vector(point.x - x, point.y - y).scale(change.length);
+        return prevChange.cross(change) * prevChange.cross(vecEnd); // shouls be positive
+    });
+
+    return !!crossMults.find((cross) => cross > CROSS_ERRROR);
 }
 
 function calcChange(cur: Point, start: Charge, charges: Charge[], cfg: DrawConfig) {

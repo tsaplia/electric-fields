@@ -1,7 +1,7 @@
 import type { ConfigsType } from "@/types";
 
 export const CHARGE_DETECTION_RADIUS = 0.5;
-export const CROSS_ERRROR = 1e-7;
+export const CROSS_ERRROR = 1e-10;
 
 type ConfigType = { [K in keyof ConfigsType]: { default: ConfigsType[K]; min?: number; max?: number } };
 
@@ -21,7 +21,7 @@ export const CONFIGS: ConfigType = {
     maxSteps: { default: 500000, min: 1, max: 500000 },
 } as const;
 
-export const DEFAULT_CHARGE_VALUE = 18;
+export const DEFAULT_CHARGE_VALUE = 20;
 
 export const INITIAL_CHARGES = [
     { id: 0, x: -20, y: 0, value: DEFAULT_CHARGE_VALUE },
