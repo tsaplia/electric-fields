@@ -17,6 +17,7 @@ function SidebarContent({ className, opened, onClose }: Props) {
     const hideAllLines = useConfigStore((state) => state.hideAllLines);
 
     const charges = useChargeStore((state) => state.charges);
+    const openModal = useChargeStore((state) => state.openModal);
 
     return (
         <aside
@@ -32,7 +33,7 @@ function SidebarContent({ className, opened, onClose }: Props) {
                     <LucideMinimize2 />
                 </Button>
             </div>
-            <Accordion type="multiple" className="w-full" defaultValue={["charges"]}>
+            <Accordion type="multiple" className="w-full" defaultValue={["charges", "appearance"]}>
                 <AccordionItem value="charges">
                     <AccordionTrigger>Charges</AccordionTrigger>
                     <AccordionContent className="flex flex-col gap-2">
@@ -40,7 +41,7 @@ function SidebarContent({ className, opened, onClose }: Props) {
                             <span className="text-sm text-muted-foreground">
                                 {charges.length} charge{charges.length !== 1 ? "s" : ""}
                             </span>
-                            <Button size="sm" variant="outline">
+                            <Button size="sm" variant="outline" onClick={() => openModal(null)}>
                                 <LucidePlus className="h-4 w-4 mr-1" />
                                 Add
                             </Button>

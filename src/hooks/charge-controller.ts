@@ -1,68 +1,110 @@
 import { CHARGE_DETECTION_RADIUS, DEFAULT_CHARGE_VALUE } from "@/lib/constants";
-import { closestIndex, distance } from "@/lib/math";
+import { closestPoint, distance, type Point } from "@/lib/math";
 import { useChargeStore } from "@/stores/charge-store";
 import { useScaleStore } from "@/stores/scale-store";
 import { useToolStore } from "@/stores/tool-store";
-import { useEffect, useState } from "react";
+import { useCallback, useEffect, useRef, useState } from "react";
+
+function roundPoint(point: Point) {
+    return {
+        x: +point.x.toFixed(1),
+        y: +point.y.toFixed(1),
+    };
+}
 
 export function useChargeController(canvasRef: React.RefObject<HTMLDivElement | null>) {
-    // TODO: dont rerun effect when charges change
     const scaleX = useScaleStore((state) => state.x);
     const scaleY = useScaleStore((state) => state.y);
     const setDisabled = useScaleStore((state) => state.setDisabled);
     const tool = useToolStore((state) => state.tool);
-    const cs = useChargeStore((state) => state);
+    const { charges, updateCharge, addCharge, setActive, openModal } = useChargeStore((state) => state);
     const [movingIndex, setMovingIndex] = useState<number | null>(null);
+    const chargesRef = useRef(charges);
 
     useEffect(() => {
-        if (!canvasRef.current) return;
-        const canvas = canvasRef.current;
+        chargesRef.current = charges;
+    }, [charges]);
 
-        const handleClick = (e: MouseEvent) => {
-            if (tool === "select") return;
-            const x = scaleX.toValue(e.clientX);
-            const y = scaleY.toValue(e.clientY);
-            const sign = tool === "electron" ? 1 : -1;
+    const getPointFromEvent = useCallback(
+        (e: MouseEvent | TouchEvent): Point => {
+            const clientEvent = e instanceof MouseEvent ? e : e.touches[0];
+            return {
+                x: scaleX.toValue(clientEvent.clientX),
+                y: scaleY.toValue(clientEvent.clientY),
+            };
+        },
+        [scaleX, scaleY]
+    );
 
-            const ci = closestIndex({ x, y }, cs.charges);
-            const dist = cs.charges[ci] ? distance({ x, y }, cs.charges[ci]) : Infinity;
-            if (dist < CHARGE_DETECTION_RADIUS && sign * cs.charges[ci].value > 0) {
-                cs.removeCharge(cs.charges[ci].id!);
-            } else if (dist > 2 * CHARGE_DETECTION_RADIUS) {
-                console.log("ADD", dist, cs.charges[ci]);
-                cs.addCharge({ value: sign * DEFAULT_CHARGE_VALUE, x, y });
+    const handleClick = useCallback(
+        (e: MouseEvent) => {
+            const point = getPointFromEvent(e);
+
+            const closest = closestPoint(point, chargesRef.current);
+            const dist = closest ? distance(point, closest) : Infinity;
+
+            if (tool === "select") {
+                if (closest && dist < CHARGE_DETECTION_RADIUS) setActive(closest.id!);
+                else setActive(null);
+            } else if (dist > CHARGE_DETECTION_RADIUS) {
+                const sign = tool === "electron" ? 1 : -1;
+                addCharge({ value: sign * DEFAULT_CHARGE_VALUE, ...roundPoint(point) });
             }
-        };
+        },
+        [getPointFromEvent, tool, setActive, addCharge]
+    );
 
-        const handlePress = (e: TouchEvent | MouseEvent) => {
+    const handleDblclick = useCallback(
+        (e: MouseEvent) => {
+            if (tool !== "select") return;
+            const point = getPointFromEvent(e);
+            const closest = closestPoint(point, chargesRef.current);
+            const dist = closest ? distance(point, closest) : Infinity;
+            if (closest && dist < CHARGE_DETECTION_RADIUS) openModal(closest.id!);
+        },
+        [tool, getPointFromEvent, openModal]
+    );
+
+    const handlePress = useCallback(
+        (e: TouchEvent | MouseEvent) => {
             if (tool !== "select") {
                 setDisabled(true);
                 return;
             }
-            const pointPx = e instanceof MouseEvent ? e : e.touches[0];
-            const point = { x: scaleX.toValue(pointPx.clientX), y: scaleY.toValue(pointPx.clientY) };
-            const ci = closestIndex(point, cs.charges);
-            if (cs.charges[ci] && distance(cs.charges[ci], point) <= CHARGE_DETECTION_RADIUS) {
+            const point = getPointFromEvent(e);
+            const closest = closestPoint(point, chargesRef.current);
+            if (closest && distance(closest, point) <= CHARGE_DETECTION_RADIUS) {
                 setDisabled(true);
-                setMovingIndex(ci);
+                setMovingIndex(closest.id!);
+                setActive(closest.id!);
             }
-        };
+        },
+        [tool, getPointFromEvent, setDisabled, setActive]
+    );
 
-        const handleMove = (e: TouchEvent | MouseEvent) => {
+    const handleMove = useCallback(
+        (e: TouchEvent | MouseEvent) => {
             if (movingIndex === null || (e instanceof MouseEvent && (e.buttons & 1) === 0)) return;
-            const pointPx = e instanceof MouseEvent ? e : e.touches[0];
-            const point = { x: scaleX.toValue(pointPx.clientX), y: scaleY.toValue(pointPx.clientY) };
-            const ci = closestIndex(point, [...cs.charges.slice(0, movingIndex), ...cs.charges.slice(movingIndex + 1)]);
-            if (!cs.charges[ci] || distance(cs.charges[ci], point) > 2 * CHARGE_DETECTION_RADIUS) {
-                console.log("MOVE", distance(cs.charges[ci], point), cs.charges[ci]);
-                cs.updateCharge(cs.charges[ci].id!, point);
+            const point = getPointFromEvent(e);
+            const closest = closestPoint(point, [
+                ...chargesRef.current.slice(0, movingIndex),
+                ...chargesRef.current.slice(movingIndex + 1),
+            ]);
+            if (!closest || distance(closest, point) > 2 * CHARGE_DETECTION_RADIUS) {
+                updateCharge(movingIndex, roundPoint(point));
             }
-        };
+        },
+        [movingIndex, getPointFromEvent, updateCharge]
+    );
 
-        const handleUp = () => {
-            setMovingIndex(null);
-            setDisabled(false);
-        };
+    const handleUp = useCallback(() => {
+        setMovingIndex(null);
+        setDisabled(false);
+    }, [setDisabled, setMovingIndex]);
+
+    useEffect(() => {
+        if (!canvasRef.current) return;
+        const canvas = canvasRef.current;
 
         canvas.addEventListener("touchstart", handlePress);
         canvas.addEventListener("touchmove", handleMove);
@@ -71,6 +113,7 @@ export function useChargeController(canvasRef: React.RefObject<HTMLDivElement | 
         canvas.addEventListener("mousemove", handleMove);
         canvas.addEventListener("mouseup", handleUp);
         canvas.addEventListener("click", handleClick);
+        canvas.addEventListener("dblclick", handleDblclick);
         return () => {
             canvas.removeEventListener("click", handleClick);
             canvas.removeEventListener("touchstart", handlePress);
@@ -79,6 +122,7 @@ export function useChargeController(canvasRef: React.RefObject<HTMLDivElement | 
             canvas.removeEventListener("mousedown", handlePress);
             canvas.removeEventListener("mousemove", handleMove);
             canvas.removeEventListener("mouseup", handleUp);
+            canvas.removeEventListener("dblclick", handleDblclick);
         };
-    }, [canvasRef, scaleX, scaleY, tool, cs, setDisabled, movingIndex, setMovingIndex]);
+    }, [canvasRef, handleClick, handleDblclick, handleMove, handlePress, handleUp]);
 }

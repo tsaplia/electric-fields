@@ -9,8 +9,9 @@ type ChargeStore = {
     addCharge: (charge: Charge) => void;
     updateCharge: (id: number, data: Partial<Charge>) => void;
     removeCharge: (id: number) => void;
-    setActive: (id: number) => void;
-    setModal: (open: boolean) => void;
+    setActive: (id: number | null) => void;
+    openModal: (id: number | null) => void;
+    closeModal: () => void;
 };
 
 export const useChargeStore = create<ChargeStore>()((set, get) => ({
@@ -19,7 +20,7 @@ export const useChargeStore = create<ChargeStore>()((set, get) => ({
     modalOpen: false,
     addCharge: (charge: Charge) => {
         set((state) => {
-            charge.id = state.charges.at(-1)?.id || 0;
+            charge.id = state.charges.length ? state.charges.at(-1)!.id! + 1 : 0;
             return { charges: [...state.charges, charge] };
         });
     },
@@ -35,10 +36,13 @@ export const useChargeStore = create<ChargeStore>()((set, get) => ({
         charges.splice(index, 1);
         set({ charges });
     },
-    setActive(id: number) {
+    setActive(id: number | null) {
         set({ activeChargeId: id });
     },
-    setModal(open: boolean) {
-        set({modalOpen: open})
-    }
+    openModal(id: number | null) {
+        set({ modalOpen: true, activeChargeId: id });
+    },
+    closeModal() {
+        set({modalOpen: false});
+    },
 }));

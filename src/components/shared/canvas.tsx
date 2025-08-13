@@ -16,6 +16,9 @@ function Canvas({ className }: { className?: string }) {
     const yScale = useScaleStore((state) => state.y);
     const charges = useChargeStore((state) => state.charges);
 
+    const activeChargeId = useChargeStore((state) => state.activeChargeId);
+    const activeCharge = charges.find((charge) => charge.id === activeChargeId) || null;
+
     const { width, height } = useWindowSize();
 
     useScaleController(intercationRef);
@@ -33,10 +36,10 @@ function Canvas({ className }: { className?: string }) {
         const ctx = canvasRef.current.getContext("2d");
         if (!ctx) return;
 
-        const pxCharges = charges.map(({ x, y, ...rest }) => ({...rest, x: xScale.toPixel(x), y: yScale.toPixel(y) }));
+        const pxCharges = charges.map(({ x, y, ...rest }) => ({ ...rest, x: xScale.toPixel(x), y: yScale.toPixel(y) }));
 
         ctx.clearRect(0, 0, ctx.canvas.width, ctx.canvas.height);
-        draw({ ...config, ctx, charges: pxCharges});
+        draw({ ...config, ctx, charges: pxCharges });
         console.debug("Rerender canvas");
     }, [config, xScale, yScale, charges]);
 
@@ -44,6 +47,18 @@ function Canvas({ className }: { className?: string }) {
         <div className={className}>
             <div className="relative" ref={intercationRef}>
                 <canvas ref={canvasRef} data-slot="canvas" className="absolute top-0 left-0 z-[-1]" />
+                <svg className="absolute top-0 left-0 -z-1" width={width} height={height}>
+                    {activeCharge && (
+                        <circle
+                            r={config.chargeDisplayRadius * 1.5}
+                            cx={xScale.toPixel(activeCharge.x)}
+                            cy={yScale.toPixel(activeCharge.y)}
+                            strokeWidth={1}
+                            stroke="black"
+                            fill="none"
+                        />
+                    )}
+                </svg>
             </div>
         </div>
     );

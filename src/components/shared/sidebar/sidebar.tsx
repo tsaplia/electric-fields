@@ -1,7 +1,7 @@
 import { useState } from "react";
 import SidebarToggle from "./sidebar-toggle";
 import { cn } from "@/lib/utils";
-import SidebarContent from "./content";
+import SidebarContent from "./sidebar-content";
 
 function Sidebar({ className }: { className?: string }) {
     const [opened, setOpened] = useState(false);

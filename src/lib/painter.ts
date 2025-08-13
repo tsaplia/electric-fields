@@ -1,5 +1,5 @@
 import { CROSS_ERRROR } from "./constants";
-import { closestIndex, distance, Vector, type Point } from "./math";
+import { closestPoint, distance, Vector, type Point } from "./math";
 import type { Charge, ConfigsType } from "../types";
 
 type Rect = {
@@ -51,11 +51,7 @@ function getRK4Step({ x, y }: Point, h: number, func: (x: number, y: number) => 
 }
 
 function drawCharge(charge: Charge, { ctx, positiveColor, negativeColor, chargeDisplayRadius }: DrawConfig) {
-    console.log("drawing", charge);
-    if (charge.hideCharge) {
-        console.log("charge is hidden");
-        return;
-    }
+    if (charge.hideCharge) return;
     ctx.fillStyle = charge.chargeColor || (charge.value > 0 ? positiveColor : negativeColor);
     ctx.strokeStyle = "#000000";
 
@@ -119,9 +115,9 @@ function drawFieldLine(angle: Point, start: Charge, charges: Charge[], color: st
     let prevRes: Vector | null = null;
     while (steps < cfg.maxSteps) {
         /* check if we reached a charge */
-        const ci = closestIndex({ x, y }, charges);
-        if (charges[ci] && distance({ x, y }, charges[ci]) <= cfg.stepSize && charges[ci].value !== 0) {
-            if (isInRect({ x, y }, getPaintRect(cfg))) ctx.lineTo(charges[ci].x, charges[ci].y);
+        const closest = closestPoint({ x, y }, charges);
+        if (closest && distance({ x, y }, closest) <= cfg.stepSize) {
+            if (isInRect({ x, y }, getPaintRect(cfg))) ctx.lineTo(closest.x, closest.y);
             break;
         }
 

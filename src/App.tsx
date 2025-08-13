@@ -3,16 +3,8 @@ import Sidebar from "@/components/shared/sidebar/sidebar";
 import ToolGroup from "@/components/shared/tool-group";
 import Scaler from "@/components/shared/scaler";
 import ChargeEditModal from "./components/shared/edit-modal.tsx/charge-edit-modal";
-import { useChargeStore } from "./stores/charge-store";
-import { useEffect } from "react";
 
 function App() {
-    const setActive = useChargeStore((state) => state.setActive);
-    const setModal = useChargeStore(state => state.setModal)
-    useEffect(() => {
-        setActive(0);
-        setModal(true);
-    }, [setActive, setModal]);
     return (
         <div className="p-2 w-screen h-screen">
             <div className="flex h-full">

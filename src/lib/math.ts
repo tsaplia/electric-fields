@@ -47,8 +47,9 @@ export function distance(a: Point, b: Point) {
     return Math.sqrt((a.x - b.x) * (a.x - b.x) + (a.y - b.y) * (a.y - b.y));
 }
 
-export function closestIndex(start: Point, points: Point[]) {
-    return points.reduce((prev, curr, i) => (distance(start, curr) < distance(start, points[prev]) ? i : prev), 0);
+export function closestPoint<T extends Point>(start: Point, points: T[]) {
+    if(points.length === 0) return null;
+    return points.reduce((prev, curr) => (distance(start, curr) < distance(start, prev) ? curr : prev), points[0]);
 }
 
 export { Vector, type Point };

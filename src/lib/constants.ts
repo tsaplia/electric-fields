@@ -1,6 +1,6 @@
 import type { ConfigsType } from "@/types";
 
-export const CHARGE_DETECTION_RADIUS = 0.7;
+export const CHARGE_DETECTION_RADIUS = 0.5;
 export const CROSS_ERRROR = 1e-7;
 
 type ConfigType = { [K in keyof ConfigsType]: { default: ConfigsType[K]; min?: number; max?: number } };
@@ -12,8 +12,8 @@ export const CONFIGS: ConfigType = {
     hideAllCharges: { default: false },
     hideAllLines: { default: false },
     hidePositiveLines: { default: false },
-    hideNegativeLines: { default: true },
-    chargeDisplayRadius: { default: 6, min: 1, max: 20 },
+    hideNegativeLines: { default: false },
+    chargeDisplayRadius: { default: 6, min: 2, max: 100 },
     hideGrid: { default: false },
 
     // Dev options
@@ -24,11 +24,11 @@ export const CONFIGS: ConfigType = {
 export const DEFAULT_CHARGE_VALUE = 18;
 
 export const INITIAL_CHARGES = [
-    { id: 0, x: 30, y: 50, value: DEFAULT_CHARGE_VALUE },
-    { id: 1, x: 70, y: 50, value: -DEFAULT_CHARGE_VALUE },
+    { id: 0, x: -20, y: 0, value: DEFAULT_CHARGE_VALUE },
+    { id: 1, x: 20, y: 0, value: -DEFAULT_CHARGE_VALUE },
 ];
 
-export const SCALE_RANGE = { a: 0, b: 100 };
+export const SCALE_RANGE = { a: -50, b: 50 };
 export const SCALING_FACTOR = 1.15;
 export const MAX_SCALE = 3;
 export const MIN_SCALE = 0.05;

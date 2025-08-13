@@ -1,7 +1,7 @@
+import { Checkbox } from "@/components/ui/checkbox";
 import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
 import { cn } from "@/lib/utils";
-import { Checkbox } from "@radix-ui/react-checkbox";
-import { Label } from "@radix-ui/react-label";
 import { useState } from "react";
 
 interface ColorInputProps {
@@ -16,7 +16,7 @@ function ColorInput({ name, defaultValue, label }: ColorInputProps) {
 
     return (
         <div className="flex items-center space-x-2">
-            <Checkbox checked={show} onCheckedChange={(checked) => setShow(checked as boolean)} />
+            <Checkbox id={name+"-check"} checked={show} onCheckedChange={(checked) => setShow(checked as boolean)} />
             <Label htmlFor={name} className={cn("me-4", show ? "" : "text-muted-foreground")}>
                 {label}
             </Label>

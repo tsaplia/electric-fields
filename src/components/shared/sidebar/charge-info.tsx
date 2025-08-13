@@ -4,7 +4,6 @@ import { useChargeStore } from "@/stores/charge-store";
 import { useConfigStore } from "@/stores/config-store";
 import type { Charge } from "@/types";
 import { LucideEdit3, LucideEye, LucideEyeOff, LucideTrash } from "lucide-react";
-import { useEffect } from "react";
 
 type Props = {
     charge: Charge;
@@ -15,9 +14,10 @@ function ChargeInfo({ charge }: Props) {
     const negativeColor = useConfigStore((state) => state.negativeColor);
     const updateCharge = useChargeStore((state) => state.updateCharge);
     const removeCharge = useChargeStore((state) => state.removeCharge);
-    useEffect(() => {
-        console.log("charge rerender", charge.id);
-    }, [charge]);
+    const openModal = useChargeStore((state) => state.openModal);
+    const activeChargeId = useChargeStore((state) => state.activeChargeId);
+
+    const isActive = activeChargeId === charge.id;
 
     function toggleVisibility() {
         if (charge.hideCharge || charge.hideCharge) updateCharge(charge.id!, { hideCharge: false, hideLines: false });
@@ -25,7 +25,7 @@ function ChargeInfo({ charge }: Props) {
     }
 
     return (
-        <div className="flex items-center gap-2 p-2 rounded-md border bg-transporent">
+        <div className={cn("flex items-center gap-2 p-2 rounded-md border bg-transporent", isActive ? "border-accent" : "")}>
             <div className="flex-1 min-w-0">
                 <div className="flex items-center gap-2">
                     <span
@@ -62,7 +62,12 @@ function ChargeInfo({ charge }: Props) {
                         <LucideEye className="h-3 w-3" />
                     )}
                 </Button>
-                <Button size="sm" variant="plain" className="h-6 w-6 p-2 text-foreground/30 hover:text-foreground">
+                <Button
+                    size="sm"
+                    variant="plain"
+                    className="h-6 w-6 p-2 text-foreground/30 hover:text-foreground"
+                    onClick={() => openModal(charge.id!)}
+                >
                     <LucideEdit3 className="h-3 w-3" />
                 </Button>
                 <Button

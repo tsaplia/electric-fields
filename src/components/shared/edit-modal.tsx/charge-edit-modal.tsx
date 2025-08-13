@@ -11,7 +11,7 @@ import { validateForm, type ValidationError } from "@/lib/charge-validation";
 import ColorInput from "./color-input";
 
 function ChargeEditModal() {
-    const { charges, removeCharge, updateCharge, addCharge, setModal, modalOpen, activeChargeId } = useChargeStore();
+    const { charges, removeCharge, updateCharge, addCharge, closeModal, modalOpen, activeChargeId } = useChargeStore();
 
     const [errors, setErrors] = useState<ValidationError[] | null>(null);
     const charge = charges.find((charge) => charge.id === activeChargeId) || null;
@@ -31,26 +31,26 @@ function ChargeEditModal() {
             return;
         }
 
-        console.log(data);
+        console.log("form data", data);
 
         if (isEditing) updateCharge(activeChargeId!, data);
         else addCharge(data);
 
-        closeModal();
+        closeHandler();
     };
 
     const handleDelete = () => {
         if (isEditing) removeCharge(activeChargeId!);
-        closeModal();
+        closeHandler();
     };
 
-    const closeModal = () => {
-        setModal(false);
+    const closeHandler = () => {
+        closeModal();
         setErrors(null);
     };
 
     return (
-        <Dialog open={modalOpen} onOpenChange={() => closeModal()}>
+        <Dialog open={modalOpen} onOpenChange={() => closeHandler()}>
             <DialogContent className="sm:max-w-md max-h-3/4 overflow-y-auto">
                 <DialogHeader>
                     <DialogTitle>{isEditing ? "Edit Charge" : "Add New Charge"}</DialogTitle>
@@ -168,7 +168,5 @@ function ChargeEditModal() {
         </Dialog>
     );
 }
-
-
 
 export default ChargeEditModal;
