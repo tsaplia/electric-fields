@@ -51,7 +51,7 @@ function getRK4Step({ x, y }: Point, h: number, func: (x: number, y: number) => 
 }
 
 function drawCharge(charge: Charge, { ctx, positiveColor, negativeColor, chargeDisplayRadius }: DrawConfig) {
-    console.log("drawing", charge)
+    console.log("drawing", charge);
     if (charge.hideCharge) {
         console.log("charge is hidden");
         return;
@@ -159,7 +159,8 @@ function drawField(cfg: DrawConfig) {
         }
 
         const startVecs: Vector[] = [];
-        startVecs.push(new Vector(0, cfg.stepSize).rotate(1 * (Math.PI / 180))); // TODO: change
+        const rotation = start.lineRotation ?? 0;
+        startVecs.push(new Vector(0, cfg.stepSize).rotate(rotation * (Math.PI / 180))); // TODO: change
         for (let i = 1; i < Math.abs(start.value); i++) {
             startVecs.push(startVecs[i - 1].rotate((2 * Math.PI) / Math.abs(start.value)));
         }

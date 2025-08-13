@@ -5,64 +5,66 @@ import { Label } from "@/components/ui/label";
 import { Checkbox } from "@/components/ui/checkbox";
 import { Separator } from "@/components/ui/separator";
 import { DEFAULT_CHARGE_VALUE } from "@/lib/constants";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { useChargeStore } from "@/stores/charge-store";
-import type { Charge } from "@/types";
-
-const extractFormData = (formData: FormData): Charge => {
-    const x = Number(formData.get("x"));
-    const y = Number(formData.get("y"));
-    const value = Number(formData.get("value"));
-    const lineRotation = Number(formData.get("lineRotation"));
-    const chargeColor = formData.get("chargeColor") as string;
-    const lineColor = formData.get("lineColor") as string;
-    
-    const data: Charge = { x, y, value };
-    
-    if (!isNaN(lineRotation)) data.lineRotation = lineRotation;
-    if (formData.get("hideCharge") === "on") data.hideCharge = true;
-    if (formData.get("hideLines") === "on") data.hideLines = true;
-    if (chargeColor && chargeColor !== "#000000") data.chargeColor = chargeColor;
-    if (lineColor && lineColor !== "#000000") data.lineColor = lineColor;
-    
-    return data;
-};
+import { validateForm, type ValidationError } from "@/lib/charge-validation";
 
 function ChargeEditModal() {
     const { charges, removeCharge, updateCharge, addCharge, setModal, modalOpen, activeChargeId } = useChargeStore();
 
-    const [error, setError] = useState<string | null>(null);
+    const [errors, setErrors] = useState<ValidationError[] | null>(null);
     const charge = charges.find((charge) => charge.id === activeChargeId) || null;
-     const isEditing = activeChargeId !== null;
+    const isEditing = activeChargeId !== null;
+
+    useEffect(() => {
+        setErrors(null);
+    }, [charge]);
 
     const onSubmit = (e: React.FormEvent<HTMLFormElement>) => {
         e.preventDefault();
-        setError(null);
 
-        const data = extractFormData(new FormData(e.currentTarget));
+        const { success, data, errors } = validateForm(new FormData(e.currentTarget));
+
+        if (!success) {
+            setErrors(errors);
+            return;
+        }
+
+        console.log(data);
 
         if (isEditing) updateCharge(activeChargeId!, data);
         else addCharge(data);
 
-        setModal(false);
-        setError(null);
+        closeModal();
     };
 
     const handleDelete = () => {
         if (isEditing) removeCharge(activeChargeId!);
+        closeModal();
+    };
+
+    const closeModal = () => {
         setModal(false);
+        setErrors(null);
     };
 
     return (
-        <Dialog open={modalOpen} onOpenChange={() => setModal(false)}>
+        <Dialog open={modalOpen} onOpenChange={() => closeModal()}>
             <DialogContent className="sm:max-w-md max-h-3/4 overflow-y-auto">
                 <DialogHeader>
                     <DialogTitle>{isEditing ? "Edit Charge" : "Add New Charge"}</DialogTitle>
                 </DialogHeader>
 
                 <form onSubmit={onSubmit} className="space-y-6">
-                    {error && (
-                        <div className="p-3 text-sm text-red-600 bg-red-50 border border-red-200 rounded-md">{error}</div>
+                    {errors && (
+                        <div className="p-3 text-sm text-red-600 bg-red-50 border border-red-200 rounded-md">
+                            {errors.map((err) => (
+                                <p>
+                                    <span className="font-medium">{err.field}: </span>
+                                    {err.message}
+                                </p>
+                            ))}
+                        </div>
                     )}
                     {/* Position */}
                     <div className="space-y-4">
@@ -117,8 +119,6 @@ function ChargeEditModal() {
                                 id="lineRotation"
                                 type="number"
                                 placeholder="0"
-                                min={0}
-                                max={360}
                                 defaultValue={charge?.lineRotation}
                             />
                         </div>
